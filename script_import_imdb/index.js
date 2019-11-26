@@ -62,16 +62,16 @@ for(let i = 0; i < 1; i++){
             while((dir = regex_dir.exec(tmp_director)) != null){
                 director.push(dir[0]);
             }
-
+            console.log(director);
+            
             //Productors
-            const regex_prod = /((\w+)(\s|\-|$)?)+((\(\w+\))|)/mg
+            const regex_prod = /(?=^)((([^\\\[\]\n(\s)])+)(\s|\-|$)?)+((\(\w+\))|)(?!\w*\])/mg
             let tmp_productor = $elem.find(".display-company").text();
             let productor = new Array();
             let prod;
             while((prod = regex_prod.exec(tmp_productor)) != null){
-                productor.push(prod[0]);
+                productor.push(prod[0].split("\n")[0]);
             }
-            console.log(productor)
 
             //Countries
             const regex_coun = /(\w+\s*\w+)+(?=(\s+(\||\,))|$)/mg
