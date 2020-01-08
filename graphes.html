@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+  </style>
+</head>
+
+<body>
+  <script>
+    // Feel free to change or delete any of the code you see in this editor!
+    
+		const margin = {top: 20, right: 20, bottom: 90, left: 120},
+    width = 800 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+    
+    const x = d3.scaleBand()
+        .range([0, width])
+        .padding(0.1);
+
+    const y = d3.scaleLinear()
+        .range([height, 0]);
+    
+		const svg = d3.select("body").append("svg")
+    .attr("id", "svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    var g = d3.select("svg")
+    	.append("g")
+    
+    d3.json("./Kiparte_processed.json", function(data) {
+      co2 = [0, 0, 0]
+      noms = ["Physique", "Dématérialisé", "Spotify"]
+      for(var cd in data){
+        co2[0] += data[cd].co2_cd
+        co2[1] += data[cd].co2_demat
+        co2[2] += data[cd].co2_spotify
+      }
+      
+      var final_data = [{"nom": noms[0], "valeur": co2[0]},
+                       {"nom": noms[1], "valeur": co2[1]},
+                       {"nom": noms[2], "valeur": co2[2]}];
+      
+      x.domain(final_data.map(function(d) { return d.nom; }));
+      y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]);
+      
+     	svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).tickSize(0))
+        .selectAll("text")
+      	.attr("transform", "translate(-72, 8)");
+      
+      svg.append("g")
+       .call(d3.axisLeft(y));
+      
+     svg.selectAll("rect")
+    .data(final_data)
+    .enter()
+    .append("rect")
+    .attr("x", function(d){return x(d.nom)})
+    .attr("y", function(d){return y(d.valeur);})
+    .attr("width", 50)
+    .attr("height", function(d){ return height-y(d.valeur);})
+      
+    });
+
+  </script>
+</body>
+
