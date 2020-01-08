@@ -2,38 +2,15 @@ import requests
 import time
 import json
 import sys, getopt
+import argparse
+from tqdm import tqdm
+import os
+import errno
 
 #username = "Qcharton"
 #username = "Roipancakes"
 #username = "Kiparte"
 #username = "Fonb"
-
-
-def main(argv):
-    outputfile = ''
-    username = ''
-    try:
-        opts, args = getopt.getopt(argv,"hu:o:",["user=", "ofile="])
-    except getopt.GetoptError:
-      print("Erreur d'arguments. Lancez script.py -h pour plus d'information.")
-      sys.exit()
-    for opt, arg in opts:
-        if opt == '-h':
-            print("Bievenue dans l'aide de notre script")
-            print("Afin de l'executer, lancer la commande suivante : ")
-            print ("    script.py --user <username> --ofile <output-file>")
-            print("Cela creera un dataset en json pour le user <username> à l'emplacement <output-file>")
-            sys.exit()
-        elif opt in ("-o", "--ofile"):
-            outputfile = arg
-        elif opt in ("-u", "--user"):
-            username = arg
-    if username == '' or outputfile == '' :
-        print("Erreur d'arguments. Lancez script.py -h pour plus d'information.")
-        sys.exit()
-    else:
-        creation_dataset(username, outputfile)
-
 
 def creation_dataset(username, outputfile):
     page = 1
@@ -41,7 +18,7 @@ def creation_dataset(username, outputfile):
 
     resp = requests.get(URL + str(page))
     if 'recenttracks' not in resp.json():
-        print("Erreur de username")
+        print("Erreur: Pseudo inexistant")
         sys.exit()
     total_pages = int(resp.json()['recenttracks']['@attr']['totalPages'])
     tracks = []
@@ -58,7 +35,7 @@ def creation_dataset(username, outputfile):
     for t in tracks:
         key = t['album']['#text']
         if key in album:
-            if t['name'] in  album[key]['tracks']:
+            if t['name'] in album[key]['tracks']:
                 album[key]['tracks'][t['name']]['nb_ecoute'] += 1
             else:
                 d = {
@@ -85,15 +62,14 @@ def creation_dataset(username, outputfile):
                 #"date" : t['date']['uts'],
                 "nb_tracks" : 10
             }
-
     print("Nous avons récupéré " + str(len(album)) + " de vos albums !")
-    print("Traitement en cours...")
-
 
     #liste regroupant les albums posant problème, on les supprime à la fin du traitement
     keys_to_delete = []
 
     #On parcours les albums écoutés pour récupérer les données avec LastFM
+    tqdm_size = len(album)
+    pbar = tqdm(total=tqdm_size)
     for key in album:
         #Si l'album a un mbid on récupère les données de ses tracks grâce au mbid
         if album[key]['mbid'] != '':
@@ -148,6 +124,8 @@ def creation_dataset(username, outputfile):
             album[key]['album_duration'] = duree_album
             album[key]['ecoute_duration'] = duree_ecoute
             time.sleep(0.1)
+        pbar.update(1)
+    pbar.close()
             
     #Suppression des albums problématiques
     while keys_to_delete != []:
@@ -175,11 +153,31 @@ def creation_dataset(username, outputfile):
 
 
     album_json = json.dumps(dictlist)
-    f = open(outputfile+".json", "w+")
+    if not os.path.exists(os.path.dirname(outputfile)):
+        try:
+            os.makedirs(os.path.dirname(outputfile))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+    f = open(outputfile, "w+")
     f.write(album_json)
     f.close()
     print("Dataset créé !")
 
 
-if __name__ == "__main__":
-   main(sys.argv[1:])
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=None)
+    parser.add_argument("-o", "--output", action="store", help="Fichier de destination")
+    parser.add_argument("-u", "--user", action="store", help="Pseudo de l\'utilisateur LastFM")
+    args = parser.parse_args()
+
+    outputfile = './datasets/'
+    username = 'Roipancakes'
+    if args.user != None:
+        username = args.user
+
+    if args.output != None:
+        outputfile = args.output
+    else:
+        outputfile = outputfile + username + "_processed.json"
+    creation_dataset(username, outputfile)
