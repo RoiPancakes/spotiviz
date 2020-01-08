@@ -100,7 +100,7 @@
     .style("opacity", 0);
     
     function load_histo(value) { 
-      d3.json("Fonb_processed.json").then(function(data) {
+      d3.json("./datasets/Fonb_processed.json").then(function(data) {
         co2 = [0, 0, 0]
         noms = ["Physique", "Dématérialisé", "Spotify"]
         for(var i = 0; i<data.length; i++){
