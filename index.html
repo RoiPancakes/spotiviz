@@ -13,24 +13,79 @@
         opacity: 0.9;
         position: absolute;
     }
+    .slidecontainer {
+  		width: 100%; /* Width of the outside container */
+		}
+    
+    .text {
+      font-size : 1.3em
+    }
+
+  /* The slider itself */
+  .slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 25px; /* Specified height */
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+  }
+
+  /* Mouse-over effects */
+  .slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+  }
+
+  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+  }
+
+  .slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+  }
   </style>
 </head>
 
 <body>
+  <div class="body"></div>
+  <div class="text"></div>
+  <div class="slidecontainer">
+  	<input type="range" min="1" max="100" value="1" class="slider" id="myRange">
+	</div>
   <script>
     // Feel free to change or delete any of the code you see in this editor!
-    
 		const margin = {top: 20, right: 20, bottom: 90, left: 120},
     width = 800 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
     
+    d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + 
+                           d3.select(".slider").node().value);
+    
+    var final_data
+    
+    var graphes;
+    var deleted = true;
+    
     const x = d3.scaleBand()
         .range([0, width])
         .padding(0.1);
+
     const y = d3.scaleLinear()
-        .range([height, 0]);
+        .range([height, 0])
     
-		const svg = d3.select("body").append("svg")
+		const svg = d3.select(".body").append("svg")
     .attr("id", "svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -44,79 +99,141 @@
     .attr("class", "tooltip")         
     .style("opacity", 0);
     
-    d3.json("Kiparte_processed.json").then(function(data) {
-      console.log(data)
-      co2 = [0, 0, 0]
-      noms = ["Physique", "Dématérialisé", "Spotify"]
-      for(var cd in data){
-        co2[0] += data[cd].co2_cd
-        co2[1] += data[cd].co2_demat
-        co2[2] += data[cd].co2_spotify
-      }
-      
-      var final_data = [{"nom": noms[0], "valeur": Math.floor(co2[0])},
-                       {"nom": noms[1], "valeur": Math.floor(co2[1])},
-                       {"nom": noms[2], "valeur": Math.floor(co2[2])}];
-      
-      x.domain(final_data.map(function(d, i) { return d.nom; }));
-      y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]);
-      
-     	svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).tickSize(0))
-        .selectAll("text")
-      	.attr("font-size", "large")
-      	.attr("transform", "translate(-48, 8)");
-      
-      svg.append("g")
-       .call(d3.axisLeft(y))
-       .selectAll("text")
-      	.attr("font-size", "large");
-     
-      var x_r = 0
-      var y_r = 0
-      
-      width_r = 100
-      
-      console.log(final_data)
-     
-     svg.selectAll("rect")
-    .data(final_data)
-    .enter()
-    .append("rect")
-    .attr("x", function(d){console.log(x(d.nom)); x_r = x(d.nom); return x(d.nom)})
-    .attr("y", function(d){y_r = y(0); return y(d.valeur);})
-    .attr("width", width_r)
-    .attr("height", function(d){return height-y(d.valeur);})
-    .attr("fill", function(d)
-          {if(d.nom === "Spotify"){
-       			return "#00f669"
+    function load_histo(value) { 
+      d3.json("Fonb_processed.json").then(function(data) {
+        co2 = [0, 0, 0]
+        noms = ["Physique", "Dématérialisé", "Spotify"]
+        for(var i = 0; i<data.length; i++){
+          if(data[i][1].nb_ecoute_tot >= value){
+            co2[0] += data[i][1].co2_cd
+          	co2[1] += data[i][1].co2_demat
+          	co2[2] += data[i][1].co2_spotify
           }
-          if(d.nom === "Physique"){
-             return "#c0c7c3"
-           }
-          if(d.nom === "Dématérialisé"){
-             return "#ff8a0c"
-           }
-     			})
-    //.attr('transform' , 'rotate(-180,' +(x_r-width_r/2*3)+','+ y_r+')')
-    /*.transition()
-    .duration(1500)
-    .attr("height", function(d){return height-y(d.valeur);})*/
-    .on("mousemove", function(d) {
-       div.transition()        
-       .duration(100)      
-       .style("opacity", .9);
-      	div.html("Émission de CO2 : " + d.valeur)
-        .style("left", (d3.event.pageX + 10) + "px")     
-        .style("top", (d3.event.pageY - 50) + "px");
-        })
-    	.on("mouseout", function(d) {
-       	div.transition()
-        .duration(500)
-        .style("opacity", 0);
-        });
-      
-    });
+        }
+
+        final_data = [{"nom": noms[0], "valeur": Math.floor(co2[0])},
+                         {"nom": noms[1], "valeur": Math.floor(co2[1])},
+                         {"nom": noms[2], "valeur": Math.floor(co2[2])}];
+
+        x.domain(final_data.map(function(d, i) { return d.nom; }));
+        y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]);
+        
+        /*svg.selectAll("rect").remove()
+      	svg.selectAll("g").remove()*/
+        
+      	if(d3.max(final_data, function(d) { return d.valeur; }) > 0){
+          if(deleted){
+            svg.selectAll("text").remove()
+            deleted = false;
+            svg.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x).tickSize(0))
+              .selectAll("text")
+              .attr("font-size", "large")
+              .attr("transform", "translate(-48, 8)");
+
+            svg.append("g")
+             .call(d3.axisLeft(y))
+             .selectAll("text")
+              .attr("font-size", "large");
+
+            var x_r = 0
+            var y_r = 0
+
+            width_r = 100
+            
+
+           graphes = svg.selectAll(".graph")
+          .data(final_data);
+            
+            
+           graphes.enter()
+          .append("rect")
+          .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
+          .attr("y", function(d){y_r = y(0); return y(0);})
+          .attr("width", width_r)
+          .attr("height", function(d){return 0;})
+          .attr("fill", function(d)
+                {if(d.nom === "Spotify"){
+                  return "#00f669"
+                }
+                if(d.nom === "Physique"){
+                   return "#c0c7c3"
+                 }
+                if(d.nom === "Dématérialisé"){
+                   return "#ff8a0c"
+                 }
+                })
+               .on("mousemove", function(d) {
+             div.transition()        
+             .duration(100)      
+             .style("opacity", .9);
+              div.html("Émission de CO2 : " + d.valeur + "g")
+              .style("left", (d3.event.pageX + 10) + "px")     
+              .style("top", (d3.event.pageY - 50) + "px");
+              })
+            .on("mouseout", function(d) {
+              div.transition()
+              .duration(500)
+              .style("opacity", 0);
+              })
+          .transition()
+          .duration(1500)
+          .attr("height", function(d){return height-y(d.valeur);})
+          .attr("y", function(d){return y(d.valeur);});
+          
+        } else {
+          	svg.selectAll("g").remove();
+            svg.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x).tickSize(0))
+              .selectAll("text")
+              .attr("font-size", "large")
+              .attr("transform", "translate(-48, 8)");
+
+            svg.append("g")
+             .call(d3.axisLeft(y))
+             .selectAll("text")
+              .attr("font-size", "large");
+          
+          var g = svg.selectAll("rect").data(final_data)
+          
+          g.exit().remove();
+          
+         	graphes = graphes.data(final_data)
+          
+          graphes.data(final_data, function(d){ return d; })
+            .enter()
+          .selectAll("rect")
+          .merge(graphes)
+          .transition()
+          .duration(500)
+          .attr("height", function(d){return height-y(d.valeur);})
+          .attr("y", function(d){return y(d.valeur);});
+          
+         
+        }
+      } else {
+       	svg.selectAll("rect").remove()
+      	svg.selectAll("g").remove()
+        deleted = true;
+        svg.append("text")
+      .text("Aucun album ne correspond.")
+      .attr("y", 200)
+      .attr("x", 120)
+      .attr("font-size", 36)
+      .attr("font-family", "monospace")
+      }
+
+      }); 
+    }
+    
+   	d3.select(".slider").on("input", function(d) {
+  			var value = d3.select(".slider").node().value;
+          d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + value);
+      	load_histo(value)
+		});
+    
+	load_histo(1)
   </script>
 </body>
