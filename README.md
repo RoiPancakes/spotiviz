@@ -1,2 +1,3 @@
 # tp-dataviz
-Tp Dataviz sur la visualisation de la taxe carbone du streaming de musique via spotify.
+
+Tp Dataviz sur la visualisation des émissions carbone du streaming de musique via spotify, et comparaison avec d'autres supports.
