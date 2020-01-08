@@ -65,10 +65,10 @@
 
 <body>
   <h1>Spotiviz</h1>
-  <p>Cette page permet, à partir de données d'écoute Spotify, de visualiser l'émission en CO2 de cette écoute ainsi que l'émission qu'aurait produit
-    cette même écoute si l'utilisateur avait acheter les disques (en physique ou en dématérialisé) au lieu d'utiliser Spotify.<br>
-    Sachant que la consommation en musique a beaucoup augmenté depuis l'avénement des applications de streaming, nous avons laissé à l'utilisateur le choix
-    du nombre de chansons minimum écoutées dans un album pour considérer qu'il l'aurait acheté si les applications de streaming n'existait pas. Ce nombre
+  <p>Cette page permet, à partir de données d'écoute Spotify disponnible sur le site LastFM, de visualiser l'émission en CO2 de l'utilisateur ainsi que l'émission qu'aurait produit
+    cette même écoute si l'utilisateur avait acheté les albums (en physique ou en dématérialisé) au lieu d'utiliser Spotify.<br>
+    Sachant que la consommation en musique a beaucoup augmenté depuis l'avènement des applications de streaming, nous avons laissé à l'utilisateur le choix
+    du nombre de chansons minimum écouté dans un album pour considérer qu'il l'aurait acheté si les applications de streaming n'existaient pas. Ce nombre
     peut être modifié en utilisant le slider ci dessous. <br><br>
 
   </p>
@@ -115,7 +115,7 @@
     .style("opacity", 0);
     
     function load_histo(value) { 
-      d3.json("Roipancakes_processed.json").then(function(data) {
+      d3.json("QCharton_processed.json").then(function(data) {
         co2 = [0, 0, 0]
         noms = ["Physique", "Dématérialisé", "Spotify"]
         for(var i = 0; i<data.length; i++){
