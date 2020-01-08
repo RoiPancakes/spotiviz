@@ -140,12 +140,21 @@
           if(deleted){
             svg.selectAll("text").remove()
             deleted = false;
+
+            svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("y", 6)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("g de CO2 émis");
+
             svg.append("g")
               .attr("transform", "translate(0," + height + ")")
               .call(d3.axisBottom(x).tickSize(0))
               .selectAll("text")
               .attr("font-size", "large")
-              .attr("transform", "translate(-48, 8)");
+              .attr("transform", "translate(-75, 8)");
 
             svg.append("g")
              .call(d3.axisLeft(y))
