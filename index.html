@@ -77,12 +77,13 @@
   	<input type="range" min="1" max="100" value="1" class="slider" id="myRange">
 	</div>
   <div class="body"></div>
+  
 
   <script>
     // Feel free to change or delete any of the code you see in this editor!
 		const margin = {top: 20, right: 20, bottom: 90, left: 120},
     width = 1000 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    height = 400 - margin.top - margin.bottom;
     
     d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + 
                            d3.select(".slider").node().value);
@@ -130,7 +131,7 @@
                          {"nom": noms[2], "valeur": Math.floor(co2[2])}];
 
         x.domain(final_data.map(function(d, i) { return d.nom; }));
-        y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]+150);
+        y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]);
         
         /*svg.selectAll("rect").remove()
       	svg.selectAll("g").remove()*/
@@ -140,7 +141,6 @@
             svg.selectAll("text").remove()
             deleted = false;
             svg.append("g")
-              .attr("class", "x")
               .attr("transform", "translate(0," + height + ")")
               .call(d3.axisBottom(x).tickSize(0))
               .selectAll("text")
@@ -148,7 +148,6 @@
               .attr("transform", "translate(-48, 8)");
 
             svg.append("g")
-             .attr("class", "y")
              .call(d3.axisLeft(y))
              .selectAll("text")
               .attr("font-size", "large");
@@ -199,20 +198,18 @@
           .attr("y", function(d){return y(d.valeur);});
           
         } else {
-          svg.selectAll(".x")
-          .transition()
-          .duration(500)
-          .call(d3.axisBottom(x).tickSize(0))
-          .selectAll("text")
-          .attr("font-size", "large")
-          .attr("transform", "translate(-48, 8)");
-          
-          svg.selectAll(".y")
-          .transition()
-          .duration(500)
-          .call(d3.axisLeft(y))
-          .selectAll("text")
-          .attr("font-size", "large");
+          	svg.selectAll("g").remove();
+            svg.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x).tickSize(0))
+              .selectAll("text")
+              .attr("font-size", "large")
+              .attr("transform", "translate(-48, 8)");
+
+            svg.append("g")
+             .call(d3.axisLeft(y))
+             .selectAll("text")
+              .attr("font-size", "large");
           
           var g = svg.selectAll("rect").data(final_data)
           
