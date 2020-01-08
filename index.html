@@ -83,7 +83,7 @@
     // Feel free to change or delete any of the code you see in this editor!
 		const margin = {top: 20, right: 20, bottom: 90, left: 120},
     width = 1000 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    height = 600 - margin.top - margin.bottom;
     
     d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + 
                            d3.select(".slider").node().value);
@@ -131,7 +131,7 @@
                          {"nom": noms[2], "valeur": Math.floor(co2[2])}];
 
         x.domain(final_data.map(function(d, i) { return d.nom; }));
-        y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]);
+        y.domain([0, d3.max(final_data, function(d) { return d.valeur; })+150]);
         
         /*svg.selectAll("rect").remove()
       	svg.selectAll("g").remove()*/
