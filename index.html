@@ -241,6 +241,7 @@
       } else {
        	svg.selectAll("rect").remove()
       	svg.selectAll("g").remove()
+        svg.selectAll("text").remove()
         deleted = true;
         svg.append("text")
       .text("Aucun album ne correspond.")
