@@ -3,7 +3,8 @@
   <meta charset="utf-8">
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
-    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0;background-color: #555555; 
+      color: white; }
     div.tooltip {
         color: #222;
         background-color: #404040;
@@ -14,11 +15,11 @@
         position: absolute;
     }
     .slidecontainer {
-  		width: 100%; /* Width of the outside container */
+  		width: 50%; /* Width of the outside container */
 		}
     
     .text {
-      font-size : 1.3em
+      font-size : 1.3em;
     }
 
   /* The slider itself */
@@ -59,6 +60,7 @@
 </head>
 
 <body>
+  <h1>Spotiviz</h1>
   <div class="body"></div>
   <div class="text"></div>
   <div class="slidecontainer">
@@ -67,8 +69,8 @@
   <script>
     // Feel free to change or delete any of the code you see in this editor!
 		const margin = {top: 20, right: 20, bottom: 90, left: 120},
-    width = 800 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
     
     d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + 
                            d3.select(".slider").node().value);
@@ -100,7 +102,7 @@
     .style("opacity", 0);
     
     function load_histo(value) { 
-      d3.json("Fonb_processed.json").then(function(data) {
+      d3.json("Roipancakes_processed.json").then(function(data) {
         co2 = [0, 0, 0]
         noms = ["Physique", "Dématérialisé", "Spotify"]
         for(var i = 0; i<data.length; i++){
