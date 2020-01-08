@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
     body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    div.tooltip {
+        color: #222;
+        background-color: #404040;
+      	color: white;
+        padding: .5em;
+        border-radius: 2px;
+        opacity: 0.9;
+        position: absolute;
+    }
   </style>
 </head>
 
@@ -32,7 +41,12 @@
     var g = d3.select("svg")
     	.append("g")
     
-    d3.json("./Kiparte_processed.json", function(data) {
+    const div = d3.select("body").append("div")
+    .attr("class", "tooltip")         
+    .style("opacity", 0);
+    
+    d3.json("Kiparte_processed.json").then(function(data) {
+      console.log(data)
       co2 = [0, 0, 0]
       noms = ["Physique", "Dématérialisé", "Spotify"]
       for(var cd in data){
@@ -41,33 +55,70 @@
         co2[2] += data[cd].co2_spotify
       }
       
-      var final_data = [{"nom": noms[0], "valeur": co2[0]},
-                       {"nom": noms[1], "valeur": co2[1]},
-                       {"nom": noms[2], "valeur": co2[2]}];
+      var final_data = [{"nom": noms[0], "valeur": Math.floor(co2[0])},
+                       {"nom": noms[1], "valeur": Math.floor(co2[1])},
+                       {"nom": noms[2], "valeur": Math.floor(co2[2])}];
       
-      x.domain(final_data.map(function(d) { return d.nom; }));
+      x.domain(final_data.map(function(d, i) { return d.nom; }));
       y.domain([0, d3.max(final_data, function(d) { return d.valeur; })]);
       
      	svg.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x).tickSize(0))
         .selectAll("text")
-      	.attr("transform", "translate(-72, 8)");
+      	.attr("font-size", "large")
+      	.attr("transform", "translate(-48, 8)");
       
       svg.append("g")
-       .call(d3.axisLeft(y));
+       .call(d3.axisLeft(y))
+       .selectAll("text")
+      	.attr("font-size", "large");
+     
+      var x_r = 0
+      var y_r = 0
       
+      width_r = 100
+      
+      console.log(final_data)
+     
      svg.selectAll("rect")
     .data(final_data)
     .enter()
     .append("rect")
-    .attr("x", function(d){return x(d.nom)})
-    .attr("y", function(d){return y(d.valeur);})
-    .attr("width", 50)
-    .attr("height", function(d){ return height-y(d.valeur);})
+    .attr("x", function(d){console.log(x(d.nom)); x_r = x(d.nom); return x(d.nom)})
+    .attr("y", function(d){y_r = y(0); return y(d.valeur);})
+    .attr("width", width_r)
+    .attr("height", function(d){return height-y(d.valeur);})
+    .attr("fill", function(d)
+          {if(d.nom === "Spotify"){
+       			return "#00f669"
+          }
+          if(d.nom === "Physique"){
+             return "#c0c7c3"
+           }
+          if(d.nom === "Dématérialisé"){
+             return "#ff8a0c"
+           }
+     			})
+    //.attr('transform' , 'rotate(-180,' +(x_r-width_r/2*3)+','+ y_r+')')
+    /*.transition()
+    .duration(1500)
+    .attr("height", function(d){return height-y(d.valeur);})*/
+    .on("mousemove", function(d) {
+       div.transition()        
+       .duration(100)      
+       .style("opacity", .9);
+      	div.html("Émission de CO2 : " + d.valeur)
+        .style("left", (d3.event.pageX + 10) + "px")     
+        .style("top", (d3.event.pageY - 50) + "px");
+        })
+    	.on("mouseout", function(d) {
+       	div.transition()
+        .duration(500)
+        .style("opacity", 0);
+        });
       
     });
 
   </script>
 </body>
-
