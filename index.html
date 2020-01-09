@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
   <style>
     body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0;background-color: #555555; 
       color: white; padding:15px; }
@@ -26,40 +26,6 @@
 
     p{font-size: 1.3em}
 
-  /* The slider itself */
-  .slider {
-    -webkit-appearance: none;  /* Override default CSS styles */
-    appearance: none;
-    width: 100%; /* Full-width */
-    height: 25px; /* Specified height */
-    background: #d3d3d3; /* Grey background */
-    outline: none; /* Remove outline */
-    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-    transition: opacity .2s;
-  }
-
-  /* Mouse-over effects */
-  .slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
-  }
-
-  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Override default look */
-    appearance: none;
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: pointer; /* Cursor on hover */
-  }
-
-  .slider::-moz-range-thumb {
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: pointer; /* Cursor on hover */
-  }
   </style>
 </head>
 
@@ -83,10 +49,7 @@
     // Feel free to change or delete any of the code you see in this editor!
 		const margin = {top: 20, right: 20, bottom: 90, left: 120},
     width = 1000 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
-    
-    d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + 
-                           d3.select(".slider").node().value);
+    height = 400 - margin.top - margin.bottom;
     
     var final_data
     
@@ -100,7 +63,7 @@
     const y = d3.scaleLinear()
         .range([height, 0])
     
-		const svg = d3.select(".body").append("svg")
+	const svg = d3.select(".body").append("svg")
     .attr("id", "svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -115,7 +78,7 @@
     .style("opacity", 0);
     
     function load_histo(value) { 
-      d3.json("./datasets/Qcharton_processed.json").then(function(data) {
+      d3.json("./datasets/Roipancakes_processed.json", function(data) {
         co2 = [0, 0, 0]
         noms = ["Physique", "Dématérialisé", "Spotify"]
         for(var i = 0; i<data.length; i++){
@@ -141,15 +104,6 @@
             svg.selectAll("text").remove()
             deleted = false;
 
-            svg.append("text")
-            .attr("class", "y label")
-            .attr("text-anchor", "end")
-            .attr("y", 6)
-            .attr("dy", ".75em")
-            .attr("transform", "rotate(-90)")
-            .style('fill', 'white')
-            .text("g de CO2 émis");
-
             svg.append("g")
               .attr("transform", "translate(0," + height + ")")
               .call(d3.axisBottom(x).tickSize(0))
@@ -172,8 +126,10 @@
           .data(final_data);
             
             
-           graphes.enter()
-          .append("rect")
+           var bar = graphes.enter()
+          .append("g")
+           
+           bar.append("rect")
           .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
           .attr("y", function(d){y_r = y(0); return y(0);})
           .attr("width", width_r)
@@ -206,6 +162,29 @@
           .duration(1500)
           .attr("height", function(d){return height-y(d.valeur);})
           .attr("y", function(d){return y(d.valeur);});
+            
+          bar.append("text")
+          .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
+          .attr("y", function(d){y_r = y(0); return y(0);})
+          .text(function(d){return d.valeur+" g"})
+          .attr("fill", function(d)
+                {if(d.nom === "Spotify"){
+                  return "#00f669"
+                }
+                if(d.nom === "Physique"){
+                   return "#c0c7c3"
+                 }
+                if(d.nom === "Dématérialisé"){
+                   return "#ff8a0c"
+                 }
+                })
+          .attr("font-size", "1.15em")
+          .attr("transform", "translate(30, -5)")
+          .transition()
+          .duration(1500)
+          .attr("height", function(d){return height-y(d.valeur);})
+          .attr("y", function(d){return y(d.valeur);});
+          
           
         } else {
           	svg.selectAll("g").remove();
@@ -215,20 +194,26 @@
               .selectAll("text")
               .attr("font-size", "large")
               .attr("transform", "translate(-48, 8)");
-
+          
             svg.append("g")
              .call(d3.axisLeft(y))
              .selectAll("text")
               .attr("font-size", "large");
           
-          var g = svg.selectAll("rect").data(final_data)
+          // MISE A JOUR
+          
+          var g = svg.selectAll(".bar").selectAll("rect").data(final_data)
           
           g.exit().remove();
           
          	graphes = graphes.data(final_data)
           
+          console.log(          graphes.data(final_data, function(d){ return d; })
+            .enter() .selectAll(".bar").selectAll("rect"))
+          
           graphes.data(final_data, function(d){ return d; })
             .enter()
+          .selectAll(".bar")
           .selectAll("rect")
           .merge(graphes)
           .transition()
@@ -251,15 +236,30 @@
       .attr("font-family", "monospace")
       .style('fill', 'white')
       }
-
-      }); 
+			// text label for the x axis
+  	svg.append("text")
+      .attr("font-size", "22")             
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height + margin.top + 40) + ")")
+      .style("text-anchor", "middle")
+      .text("Comparaison de la production de gaz à effet de serre");
+        
+        
+    // text label for the y axis
+  		svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 32 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .attr("font-size", "large")
+      .style("text-anchor", "middle")
+      .text("g de Co2 émit");
+      });
+      
+      
     }
     
-   	d3.select(".slider").on("input", function(d) {
-  			var value = d3.select(".slider").node().value;
-          d3.select(".text").text("Nombre minimum de chansons écoutées dans l'album : " + value);
-      	load_histo(value)
-		});
     
 	load_histo(1)
   </script>
