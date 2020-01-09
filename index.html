@@ -1,11 +1,66 @@
 <!DOCTYPE html>
-<head>
-  <meta charset="utf-8">
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <style>
-    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0;background-color: #555555; 
-      color: white; padding:15px; }
-    div.tooltip {
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spotiviz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="js/smoke.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+      #prez, #hist, #album{
+        font-family: 'Poppins';
+      }
+      #header{
+        position: relative;
+        height: 100vh;
+        background: rgb(40,40,40);
+      }
+      #header .content {
+        padding-top: 18%;
+      }
+      #header .title{
+        font-size: 150px;
+        padding-bottom: 40px;
+      }
+      #header .subtitle{
+        font-size: 35px;
+      }
+      #canvas-header{
+        position: absolute;
+        top: 0;
+        bottom: 0;
+      }
+
+      #header .arrow{
+        font-size: 120px;
+        padding-top: 100px;
+      }
+
+      .mt40{
+        margin-top: 40px;
+      }
+
+      #prez img {
+        max-width: 300px;
+      }
+
+      #hist {
+        background: rgb(40,40,40);
+      }
+
+      .body-hist text{
+        color: white;
+      }
+
+      .body-hist svg{
+        padding-top: 25px;
+        display: block;
+        margin: auto;
+      }
+      div.tooltip {
         color: #222;
         background-color: #404040;
       	color: white;
@@ -14,34 +69,114 @@
         opacity: 0.9;
         position: absolute;
     }
-    .slidecontainer {
-  		width: 50%; /* Width of the outside container */
-      padding-left: 10px;
-		}
-    
-    .text {
-      font-size : 1.3em;
-      margin-left: 10px;
+    #container{
+      position: relative;
     }
-
-    p{font-size: 1.3em}
-
-  </style>
-</head>
-
-<body>
-  <h1>Spotiviz</h1>
-  <p>Cette page permet, à partir de données d'écoute Spotify disponible sur le site LastFM, de visualiser l'émission en CO2 de l'utilisateur ainsi que l'émission qu'aurait produit
+    canvas {
+      position:absolute;
+      bottom:0;
+      transition: 0.5s ease;
+    }
+    .mask{
+      background: white;
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:0px;
+      transition: 0.5s ease;
+      z-index:1000;
+      border-top: 1px dotted black;
+    }
+    
+    .axis.notext text{
+      display: none;
+    }
+    </style>
+  </head>
+  <body>
+    <section id="header" class="hero">
+      <div class="container">
+        <div class="content has-text-centered">
+          <h1 class="title has-text-white">
+            Spotiviz
+          </h1>
+          <p class="subtitle has-text-white">
+          Une visualisation <strong class="has-text-white">interactive</strong> de l'impact carbone du streaming audio.
+          </p>
+          <p class="arrow title has-text-white">&darr;</p>
+        </div>
+      </div>
+      <canvas id="canvas-header">
+      </canvas>
+    </section>
+    <section id="prez" class="section">
+      <div class="container">
+        <h1 class="title has-text-centered">
+          PRÉSENTATION DU PROJET
+        </h1>
+        <div class="columns has-text-justified mt40">
+          <div class="column is-4 is-offset-2">
+          <p>
+          Cette page permet, à partir de données d'écoute Spotify disponible sur le site LastFM, de visualiser l'émission en CO2 de l'utilisateur ainsi que l'émission qu'aurait produit
     cette même écoute si l'utilisateur avait acheté les albums (en physique ou en dématérialisé) au lieu d'utiliser Spotify.<br>
     Sachant que la consommation en musique a beaucoup augmenté depuis l'avènement des applications de streaming, nous avons laissé à l'utilisateur le choix
     du nombre de chansons minimum écoutées dans un album pour considérer qu'il l'aurait acheté si les applications de streaming n'existaient pas. Ce nombre
-    peut être modifié en utilisant le slider ci dessous. <br><br>
+    peut être modifié en utilisant le slider ci dessous.
+          </p>
+          </div>
+          <div class="column is-6 has-text-centered">
+              <img src="images/spotify.png">
+              <img src="images/lastfm.png">
+          </div>
+        </div>
+      </div>
+    </section>
 
-  </p>
-  <div class="body"></div>
-  
-
+    <section id="hist" class="hero">
+      <div class="hero-body">
+        <div class="container">
+          <h1 class="title has-text-centered has-text-white">
+            Comparaison de la production de gaz à effet de serre
+          </h1>
+          <div class="body-hist"></div>
+        </div>
+      </div>
+    </section>
+    <section id="album" class="hero">
+      <div class="hero-body">
+        <div class="container">
+          <h1 class="title has-text-centered">
+            Visualisation par album
+          </h1>
+          <div class="body-album"></div>
+        </div>
+      </div>
+    </section>
+  </body>
   <script>
+{
+    var canvas = document.getElementById("canvas-header")
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var ctx = canvas.getContext('2d')
+    var party = SmokeMachine(ctx, [150, 150, 150])
+    party.addSmoke(canvas.width/2,canvas.height+150, 80)
+  
+    setTimeout(function(){
+      party.addSmoke(canvas.width/2-100,canvas.height+150, 30)
+      party.addSmoke(canvas.width/2+100,canvas.height+150, 30)
+    }, 6000);
+    setTimeout(function(){
+      party.addSmoke(canvas.width/2+300,canvas.height+200, 30)
+      party.addSmoke(canvas.width/2-300,canvas.height+200, 30)
+    }, 2000);
+    
+    party.start()
+}
+  </script>
+ <script>
+{
     // Feel free to change or delete any of the code you see in this editor!
 		const margin = {top: 20, right: 20, bottom: 90, left: 120},
     width = 1000 - margin.left - margin.right,
@@ -59,7 +194,7 @@
     const y = d3.scaleLinear()
         .range([height, 0])
     
-	const svg = d3.select(".body").append("svg")
+	const svg = d3.select(".body-hist").append("svg")
     .attr("id", "svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -69,7 +204,7 @@
     var g = d3.select("svg")
     	.append("g")
     
-    const div = d3.select("body").append("div")
+    const div = d3.select("body-hist").append("div")
     .attr("class", "tooltip")         
     .style("opacity", 0);
     
@@ -100,16 +235,24 @@
             svg.selectAll("text").remove()
             deleted = false;
 
-            svg.append("g")
+            let axx = svg.append("g")
               .attr("transform", "translate(0," + height + ")")
               .call(d3.axisBottom(x).tickSize(0))
-              .selectAll("text")
+
+            axx.selectAll("line").attr("stroke","white")
+            axx.selectAll("path").attr("stroke","white")
+            axx.selectAll("text")
               .attr("font-size", "large")
+              .attr("fill","white")
               .attr("transform", "translate(-75, 8)");
 
-            svg.append("g")
-             .call(d3.axisLeft(y))
-             .selectAll("text")
+            let axy = svg.append("g")
+             .call(d3.axisLeft(y));
+            axy.selectAll("line").attr("stroke","white")
+            axy.selectAll("path").attr("stroke","white")
+             axy.selectAll("text")
+              .attr("fill","white")
+              .attr("transform", "translate(-10,0)")
               .attr("font-size", "large");
 
             var x_r = 0
@@ -189,6 +332,7 @@
               .call(d3.axisBottom(x).tickSize(0))
               .selectAll("text")
               .attr("font-size", "large")
+              .attr("fill","white")
               .attr("transform", "translate(-48, 8)");
           
             svg.append("g")
@@ -233,23 +377,26 @@
       .style('fill', 'white')
       }
 			// text label for the x axis
+        /*
   	svg.append("text")
       .attr("font-size", "22")             
       .attr("transform",
             "translate(" + (width/2) + " ," + 
                            (height + margin.top + 40) + ")")
       .style("text-anchor", "middle")
-      .text("Comparaison de la production de gaz à effet de serre");
+      .text("Comparaison de la production de gaz à effet de serre")
+        */
         
         
     // text label for the y axis
   		svg.append("text")
-      .attr("transform", "rotate(-90), translate(-50, 0)")
+      .attr("transform", "rotate(-90), translate(0, -25)")
       .attr("y", 32 - margin.left)
       .attr("x",0 - (height / 2))
       .attr("dy", "1em")
       .attr("font-size", "large")
       .style("text-anchor", "middle")
+      .attr("fill","white")
       .text("g de Co2 émit");
       });
       
@@ -258,5 +405,328 @@
     
     
 	load_histo(1)
+}
+</script>
+<script>
+{
+    function smokePulser(context, w, h){
+      	this.w = w
+        this.h = h
+        this.ctx = context
+        this.machine = SmokeMachine(context, "#111111");
+        this.continue = false;
+        this.smoke = 10;
+        this.start = function(){
+          this.machine.start()
+          this.continue = true
+          this.pulse()
+        };
+        this.pulse = function(){
+          this.machine.addSmoke(this.w/2,this.h+100, this.smoke);
+          var _this = this
+          if(this.continue) setTimeout(function(){_this.pulse()}, 1500)
+          else this.machine.stop();
+        };
+        this.stop = function(){
+          this.continue = false
+        };
+      	this.changeColor = function(color){
+          this.machine = SmokeMachine(this.ctx, color);
+          this.machine.start()
+        }
+      }
+    
+    
+  	
+  d3.json("datasets/Qcharton_processed.json", function(json){
+      json.sort((a, b) => (a[1].co2_spotify < b[1].co2_spotify) ? 1 : -1)
+      var selection = 0
+      
+      var width = 1000
+      var height = 650
+      
+      var w_canvas = 150
+      var h_canvas = 450
+      
+      var margin_left = 25
+      var margin_top = 10
+      
+      var expended = false
+      
+      var svg = d3.select(".body-album")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+      
+      var bar_spotify = svg.append("g")
+      var bar_demat = svg.append("g")
+      var bar_cd = svg.append("g")
+      
+      var scaleSmoke = d3.scaleLinear()
+      .range([5, 15])
+      .domain([0,10000])
+      var y = d3.scaleLinear()
+      .range([0, h_canvas])
+      .domain([100,0]);
+      var yAxisLeft = d3.axisLeft(y).tickSize(-10);
+      var yAxisRight = d3.axisLeft(y).tickSize(10);
+      
+      function createBar(parentNode){
+        parentNode.append('line')
+          .style("stroke", "black")
+          .style("stroke-width", 1)
+          .attr("x1", margin_left)
+          .attr("y1", 10+h_canvas)
+          .attr("x2", margin_left+w_canvas)
+          .attr("y2", 10+h_canvas);
+        var foreignObject = parentNode.append("foreignObject")
+          .attr("width", w_canvas)
+          .attr("height",h_canvas)
+          .attr("x",margin_left)
+          .attr("y",margin_top)
+        var foBody = foreignObject.append("xhtml:body")
+          .style("margin", "0px")
+          .style("padding", "0px")
+          .style("background-color", "none")
+          .style("width", w_canvas + "px")
+          .style("height", h_canvas + "px")
+        var canvas = foBody.append("canvas")
+          .attr("id", "canvas")
+          .attr("width", w_canvas)
+          .attr("height", h_canvas)
+          .style("width",w_canvas+"px")
+          .style("height",h_canvas+"px")
+        var mask = foBody.append("div")
+          .attr("class", "mask")
+      
+        parentNode.append("g")
+            .attr("class", "y axis left")
+            .call(yAxisLeft)
+            .attr("transform", "translate("+margin_left+","+margin_top+")");
+        var yaxis_right_x = margin_left+w_canvas;
+        parentNode.append("g")
+            .attr("class", "y axis right notext")
+            .call(yAxisRight)
+            .attr("transform", "translate("+yaxis_right_x+","+margin_top+")")
+      }
+      
+      createBar(bar_spotify)
+      createBar(bar_demat)
+      createBar(bar_cd)
+      
+		
+      
+      var album_cover = svg.append("g");
+
+      var cover_size = 300
+      var y_img = (h_canvas-cover_size)/2
+       
+      album_cover.append("image")
+      	.attr("xlink:href", "https://cdn.shopify.com/s/files/1/0005/2751/products/gladsaxframe_large.JPG?v=1439211670")
+      	.attr("width", cover_size+61)
+        .attr("height", cover_size+61)
+      	.attr("x", (w_canvas+margin_left) +19)
+      	.attr("y", y_img- 30)
+      
+      var next = album_cover.append("g").attr("viewBox", "0 0 42 42")
+      .attr("transform", "translate("+(margin_left+w_canvas+cover_size+10)+","+(y_img+cover_size+20)+")")
+      
+      next.append("path").attr("d", "M35.5,0c-0.552,0-1,0.447-1,1v18.095L7.068,0.177C6.762-0.034,6.364-0.057,6.035,0.114C5.706,0.287,5.5,0.628,5.5,1v40	c0,0.372,0.206,0.713,0.535,0.886C6.181,41.962,6.341,42,6.5,42c0.199,0,0.397-0.06,0.568-0.177L34.5,22.905V41c0,0.553,0.448,1,1,1 s1-0.447,1-1V1C36.5,0.447,36.052,0,35.5,0z")
+      
+
+      var prec = album_cover.append("g").attr("viewBox", "0 0 42 42")
+      .attr("transform", "translate("+(margin_left+w_canvas+88)+","+(y_img+cover_size+20)+"), scale(-1,1)")
+      
+			prec.append("path")
+      .attr("d", "M35.5,0c-0.552,0-1,0.447-1,1v18.095L7.068,0.177C6.762-0.034,6.364-0.057,6.035,0.114C5.706,0.287,5.5,0.628,5.5,1v40	c0,0.372,0.206,0.713,0.535,0.886C6.181,41.962,6.341,42,6.5,42c0.199,0,0.397-0.06,0.568-0.177L34.5,22.905V41c0,0.553,0.448,1,1,1 s1-0.447,1-1V1C36.5,0.447,36.052,0,35.5,0z")
+
+      var a_id = 0;
+      
+      next.on("mouseover", function(){
+        d3.select(this).style("cursor", "pointer");
+        next.transition().duration(150).attr("transform", "translate("+(margin_left+w_canvas+cover_size+10)+","+(y_img+cover_size+15)+"), scale(1.25)")
+      });
+      
+      next.on("mouseout", function(){
+        next.transition().duration(150).attr("transform", "translate("+(margin_left+w_canvas+cover_size+10)+","+(y_img+cover_size+20)+")")
+      });
+      
+      prec.on("mouseover", function(){
+        d3.select(this).style("cursor", "pointer");
+        prec.transition().duration(150).attr("transform", "translate("+(margin_left+w_canvas+88)+","+(y_img+cover_size+15)+"), scale(-1,1), scale(1.25)")
+      });
+      
+      prec.on("mouseout", function(){
+        prec.transition().duration(150).attr("transform", "translate("+(margin_left+w_canvas+90)+","+(y_img+cover_size+20)+"), scale(-1,1)")
+      });
+      
+      next.on("click", function() {
+        if(a_id < json.length){
+        	a_id += 1
+          updateAlbum(json[a_id])
+        }
+      })
+
+      prec.on("click", function() {
+        if(a_id!==0){
+          a_id -= 1
+          updateAlbum(json[a_id])
+        }
+      })
+      
+      var text_aid = album_cover.append("text")
+        .attr("x", (w_canvas+margin_left) + 50 + (cover_size-40)/2)
+     	 	.attr("y", y_img + cover_size + 51)
+      	.attr("font-size", "24px")
+
+      var text_titre = album_cover.append("text")
+        .attr("x", (w_canvas+margin_left) + cover_size + 80)
+     	 	.attr("y", y_img + 50)
+      	.attr("font-size", "30px")
+        .text("Titre")
+
+      var text_artiste = album_cover.append("text")
+        .attr("x", (w_canvas+margin_left) + cover_size + 80)
+     	 	.attr("y", y_img + 50 + 50)
+      	.attr("font-size", "24px")
+        .text("Artiste")
+      
+
+
+      
+      var ctx = bar_spotify.select("canvas").node().getContext('2d')
+			var spotify_smoke = new smokePulser(ctx, w_canvas, h_canvas)
+      updateAlbum(json[a_id])
+      ctx = bar_cd.select("canvas").node().getContext('2d')
+			var cd_smoke = new smokePulser(ctx, w_canvas, h_canvas)
+      ctx = bar_demat.select("canvas").node().getContext('2d')
+			var demat_smoke = new smokePulser(ctx, w_canvas, h_canvas)
+      
+      spotify_smoke.start()
+      demat_smoke.start()
+      cd_smoke.start()
+      bar_cd.attr("style", "opacity:0;")
+      bar_demat.attr("style", "opacity:0;")
+       //setTimeout(function(){
+      //}, 5000);
+			
+      	
+      function updateAlbum(album){
+          text_titre.text(album[0])
+          text_artiste.text(album[1].artiste)
+        	text_aid.text((a_id+1)+"/"+json.length)
+          var old_img = album_cover.selectAll(".cover")
+          var new_img = album_cover.append("image")
+          .attr("class", "cover")
+          .attr("style","opacity: 0;")
+          .attr("xlink:href", album[1].image)
+          .attr("width", cover_size)
+          .attr("height", cover_size)
+          .attr("x", (w_canvas+margin_left) + 50)
+          .attr("y", y_img)
+					old_img.transition().duration(500).ease(d3.easeLinear).attr("style","opacity: 0;")
+            .on("end", function(){old_img.remove()})
+         new_img.transition().duration(500).ease(d3.easeLinear).attr("style","opacity: 1;")
+
+          if(expended===true) value = Math.max(album[1].co2_spotify, album[1].co2_cd, album[1].co2_demat)
+          else value = album[1].co2_spotify
+          spotify_smoke.smoke = scaleSmoke(album[1].co2_spotify)
+          y.domain([50,0])
+          if(value>50)
+            y.domain([100,0])
+          if(value>100)
+            y.domain([150,0])
+          if(value>500)
+            y.domain([1000,0])
+          if(value>1000)
+            y.domain([5000,0])
+          if(value>5000)
+          	y.domain([10000,0])
+          
+          svg.selectAll(".y.left")
+            .transition()
+            .duration(500)
+            .call(yAxisLeft)
+          svg.selectAll(".y.right")
+            .transition()
+            .duration(500)
+            .call(yAxisRight)
+          bar_spotify.select(".mask").attr("style", "height:"+y(album[1].co2_spotify)+"px")
+          bar_demat.select(".mask").attr("style", "height:"+y(album[1].co2_demat)+"px")
+          bar_cd.select(".mask").attr("style", "height:"+y(album[1].co2_cd)+"px")
+                    //,"background-image: linear-gradient(rgba(255,255,255,1) 					   "+y(value)+"px,rgba(255,255,255,0)); height:"+(y(value)+15)+"px")
+        }
+      
+			var btn_expand = svg.append("foreignObject")
+      	.attr("width", 150)
+      	.attr("height", 40)
+      	.attr("transform", "translate(45,470)")
+      	.append("xhtml:button").text("Comparer")
+      btn_expand.on("click", function(){
+        if(expended===false){
+          d3.select(this).text("Réduire")
+          expended=true
+          album_cover.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("transform", "translate(0,"+h_canvas+")")
+
+          spotify_smoke.changeColor([20,120,20])
+          demat_smoke.changeColor([120,20,20])
+          bar_demat.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:1;")
+             .attr("transform", "translate("+ (w_canvas+50) +",0)")
+          bar_cd.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:1;")
+             .attr("transform", "translate("+ 2*(w_canvas+50) +",0)")
+      	} else {
+          d3.select(this).text("Comparer")
+          spotify_smoke.changeColor("#111111")
+          expended=false
+          bar_demat.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:0;")
+             .attr("transform", "translate(0,0)")
+          bar_cd.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:0;")
+             .attr("transform", "translate(0,0)")
+            //.on("end", function() {cd_smoke.stop()})
+          album_cover.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("transform", "translate(0,0)")
+          
+        }
+        updateAlbum(json[a_id])
+      });
+      
+      d3.select("body")
+    	.on("keydown", function() {
+        if(d3.event.keyCode === 37){
+          if(a_id!==0){
+            a_id -= 1
+          	updateAlbum(json[a_id])
+          }
+        } else if(d3.event.keyCode === 39) {
+          if(a_id < json.length){
+            a_id += 1
+          	updateAlbum(json[a_id])
+          }
+        }
+      });
+        
+    	});
+}
   </script>
-</body>
+
+
+
+
+</html>
