@@ -630,6 +630,7 @@
       ctx = bar_demat.select("canvas").node().getContext('2d')
 			var demat_smoke = new smokePulser(ctx, w_canvas, h_canvas)
       
+    spotify_smoke.changeColor([0,246,105])
       spotify_smoke.start()
       demat_smoke.start()
       cd_smoke.start()
@@ -729,7 +730,8 @@
           d3.select(this)
             .attr("class", "button is-dark is-medium")
             .text("Comparer")
-          spotify_smoke.changeColor("#111111")
+          //spotify_smoke.changeColor("#111111")
+          spotify_smoke.changeColor([0,246,105])
           expended=false
           bar_spotify.transition()
              .duration(1000)
