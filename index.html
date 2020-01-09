@@ -106,7 +106,7 @@
             Spotiviz
           </h1>
           <p class="subtitle has-text-white">
-          Une visualisation <strong class="has-text-white">interactive</strong> de l'impact carbone du streaming audio.
+          Une visualisation <strong class="has-text-white">interactive</strong> sur l'impact carbone du streaming audio.
           </p>
           <p class="arrow title has-text-white">&darr;</p>
         </div>
@@ -425,7 +425,7 @@
         this.ctx = context
         this.machine = SmokeMachine(context, "#111111");
         this.continue = false;
-        this.smoke = 10;
+        this.smoke = 15;
         this.start = function(){
           this.machine.start()
           this.continue = true
@@ -452,13 +452,13 @@
       json.sort((a, b) => (a[1].co2_spotify < b[1].co2_spotify) ? 1 : -1)
       var selection = 0
       
-      var width = 1000
+      var width = 1800
       var height = 550
       
       var w_canvas = 150
       var h_canvas = 450
       
-      var margin_left = 25
+      var margin_left = 400
       var margin_top = 10
       
       var expended = false
@@ -481,7 +481,7 @@
       var yAxisLeft = d3.axisLeft(y).tickSize(-10);
       var yAxisRight = d3.axisLeft(y).tickSize(10);
       
-      function createBar(parentNode){
+      function createBar(parentNode, nom){
         parentNode.append('line')
           .style("stroke", "black")
           .style("stroke-width", 1)
@@ -518,11 +518,21 @@
             .attr("class", "y axis right notext")
             .call(yAxisRight)
             .attr("transform", "translate("+yaxis_right_x+","+margin_top+")")
+        parentNode.append("text")
+            .text(nom)
+            .attr("x", margin_left)
+            .attr("y", 30+h_canvas)
+            .attr("class", "support")
       }
       
-      createBar(bar_spotify)
-      createBar(bar_demat)
-      createBar(bar_cd)
+      createBar(bar_spotify, "Spotify")
+      createBar(bar_demat, "Dématérialisé")
+      createBar(bar_cd, "CD")
+
+      bar_spotify.select(".support")
+        .attr("stroke", "#00f669")
+      bar_demat.select(".support")
+        .attr("stroke", "#ff8a0c")
       
 		
       
@@ -640,12 +650,12 @@
 
           if(expended===true) value = Math.max(album[1].co2_spotify, album[1].co2_cd, album[1].co2_demat)
           else value = album[1].co2_spotify
-          spotify_smoke.smoke = scaleSmoke(album[1].co2_spotify)
+          //spotify_smoke.smoke = scaleSmoke(album[1].co2_spotify)
           y.domain([50,0])
           if(value>50)
             y.domain([100,0])
           if(value>100)
-            y.domain([150,0])
+            y.domain([180,0])
           if(value>500)
             y.domain([1000,0])
           if(value>1000)
@@ -669,34 +679,55 @@
       
 			var btn_expand = svg.append("foreignObject")
       	.attr("width", 150)
-      	.attr("height", 40)
-      	.attr("transform", "translate(45,470)")
-      	.append("xhtml:button").text("Comparer")
+      	.attr("height", 50)
+        .attr("style", "transition: 0.5s;")
+      	.attr("transform", "translate(600,500)")
+      	.append("xhtml:button")
+        .attr("class", "button is-dark is-medium")
+        .text("Comparer")
+        
       btn_expand.on("click", function(){
         if(expended===false){
-          d3.select(this).text("Réduire")
+          d3.select(this)
+            .attr("class", "button is-medium")
+            .text("Réduire")
           expended=true
           album_cover.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
-             .attr("transform", "translate(0,"+h_canvas+")")
+                .attr("transform", "translate(" + w_canvas + ",0)")
 
-          spotify_smoke.changeColor([20,120,20])
-          demat_smoke.changeColor([120,20,20])
+          //spotify_smoke.changeColor([20,120,20])
+          spotify_smoke.changeColor([0,246,105])
+          //demat_smoke.changeColor([120,20,20])
+          demat_smoke.changeColor([255,138,12])
+          cd_smoke.changeColor("#111111")
+          bar_spotify.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:1;")
+             .attr("transform", "translate("+ ((-2)*(w_canvas+50) + 50) +",0)");
           bar_demat.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
              .attr("style", "opacity:1;")
-             .attr("transform", "translate("+ (w_canvas+50) +",0)")
+             .attr("transform", "translate("+ ((-1)*(w_canvas+50) + 50) +",0)");
           bar_cd.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
              .attr("style", "opacity:1;")
-             .attr("transform", "translate("+ 2*(w_canvas+50) +",0)")
+             .attr("transform", "translate("+ (0*(w_canvas+50) + 50) +",0)");
       	} else {
-          d3.select(this).text("Comparer")
+          d3.select(this)
+            .attr("class", "button is-dark is-medium")
+            .text("Comparer")
           spotify_smoke.changeColor("#111111")
           expended=false
+          bar_spotify.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("transform", "translate(0,0)")
+
           bar_demat.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
