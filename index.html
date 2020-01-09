@@ -526,7 +526,13 @@
       createBar(bar_spotify, "Spotify")
       createBar(bar_demat, "Dématérialisé")
       createBar(bar_cd, "CD")
-
+  	  bar_spotify.append("text")
+          .attr("transform", "rotate(-90), translate(-270,"+(margin_left- 40)+")")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("font-size", "medium")
+      .text("g de Co2 émit");
+      
       bar_spotify.select(".support")
         .attr("stroke", "#00f669")
       bar_demat.select(".support")
@@ -704,17 +710,17 @@
              .duration(1000)
              .ease(d3.easeQuadOut)
              .attr("style", "opacity:1;")
-             .attr("transform", "translate("+ ((-2)*(w_canvas+50) + 50) +",0)");
+             .attr("transform", "translate("+ ((-2)*(w_canvas+40) + 50) +",0)");
           bar_demat.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
              .attr("style", "opacity:1;")
-             .attr("transform", "translate("+ ((-1)*(w_canvas+50) + 50) +",0)");
+             .attr("transform", "translate("+ ((-1)*(w_canvas+40) + 50) +",0)");
           bar_cd.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
              .attr("style", "opacity:1;")
-             .attr("transform", "translate("+ (0*(w_canvas+50) + 50) +",0)");
+             .attr("transform", "translate("+ (0*(w_canvas+40) + 50) +",0)");
       	} else {
           d3.select(this)
             .attr("class", "button is-dark is-medium")
