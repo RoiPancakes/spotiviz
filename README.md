@@ -1,3 +1,4 @@
-# tp-dataviz
+# Spotiviz
 
-Tp Dataviz sur la visualisation des émissions carbone du streaming de musique via spotify, et comparaison avec d'autres supports.
+Spotiviz is an university project. Our purpose is to allow people to visualise the greenhouse gas emissions caused by their use of platforms like spotify.
+We also want people to be able to compare different mediums to adapt their habits. That is why we chose to compare these emissions to those which would have been caused by physical or dematerialized CD.
