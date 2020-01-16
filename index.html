@@ -62,13 +62,12 @@
       }
       div.tooltip {
         color: #222;
-        background-color: #404040;
+        background-color: black;
       	color: white;
         padding: .5em;
         border-radius: 2px;
         opacity: 0.9;
         position: absolute;
-    }
     #container{
       position: relative;
     }
@@ -139,7 +138,7 @@
       <div class="hero-body">
         <div class="container">
           <h1 class="title has-text-centered has-text-white">
-            Comparaison de la production de gaz à effet de serre
+            Comparaison de la production de gaz à effet de serre de la consommation Spotify en fonction du support
           </h1>
           <div class="body-hist"></div>
         </div>
@@ -158,10 +157,36 @@
           <div class="body-album"></div>
         </div>
       </div>
+	<section id="Refs" class="section">
+      <div class="hero-body">
+		<h2 class="title has-text-centered">
+			  Références
+			</h2>  
+        <div class="container">
+			
+			<p>
+          Afin de quantifier les écoutes spotify en terme d’émission CO2, nous avons utilisé l’addon <a href=https://addons.mozilla.org/fr/firefox/addon/carbonalyser/>Carbonalyser</a>
+	Cet outil nous a permis de déduire les émissions carbone par minute dues à spotify. Grâce  la durée des musiques, nous avons pu quantifier les émissions causées par chaque écoute.<br>
+	Plus d’infos sur notre méthode <a href="https://github.com/RoiPancakes/spotiviz/blob/master/autre/Methodologie-V2.pdf">ici</a>.<br><br> 
+			</p>
+			<p>
+	Nous avons utilisé les <a href=https://api-istex-fr.docelec.univ-lyon1.fr/ark:/67375/WNG-FL6KC73F-W/fulltext.pdf?auth=ip,fede&sid=ebsco,istex-view>travaux</a> de <i>Christopher L. Weber,Jonathan G. Koomey, et H. Scott Matthews</i> sur l'impact écologique de la consommation de musique.
+			</p>
+        
+		</div>
+      </div>
     </section>
     <section id="footer" class="hero">
       <div class="hero-body">
+		  <h2 class="subtitle has-text-centered">
+			  A propos
+			</h2>
         <div class="container">
+			<p>
+         Ce projet a été réalisé dans le cadre du <a href=https://lyondataviz.github.io/teaching/lyon1-m2/2019/>cours</a> de Datavisualisation du <a href=http://master-info.univ-lyon1.fr/IA/>Master IA de l'Université Lyon 1</a>.<br>
+		 Merci à Quentin C. qui nous as autorisé à utiliser ses données.<br>
+		 Ce projet à été réalisé par Valentin C., Alban F., Lucas M. et Julien V.
+		 </p>
         </div>
       </div>
     </section>
@@ -216,7 +241,7 @@
     var g = d3.select("svg")
     	.append("g")
     
-    const div = d3.select("body-hist").append("div")
+    const div = d3.select(".body-hist").append("div")
     .attr("class", "tooltip")         
     .style("opacity", 0);
     
@@ -300,9 +325,10 @@
              div.transition()        
              .duration(100)      
              .style("opacity", .9);
-              div.html("Émission de CO2 : " + d.valeur + "g")
-              .style("left", (d3.event.pageX + 10) + "px")     
-              .style("top", (d3.event.pageY - 50) + "px");
+              var mousePosition = d3.mouse(this);
+             div.attr('style', 'left:' + (mousePosition[0]) +
+                                'px; top:' + (mousePosition[1]- 50) + 'px')
+             .html("Equivaut à " + d.valeur/data[0][1].co2_cd + " disque(s) physique");
               })
             .on("mouseout", function(d) {
               div.transition()
@@ -776,8 +802,6 @@
     	});
 }
   </script>
-
-
 
 
 </html>
