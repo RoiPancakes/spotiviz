@@ -326,8 +326,8 @@
              .duration(100)      
              .style("opacity", .9);
               var mousePosition = d3.mouse(this);
-             div.attr('style', 'left:' + (mousePosition[0]) +
-                                'px; top:' + (mousePosition[1]+ 75) + 'px')
+             div.attr('style', 'left:' + (mousePosition[0]+ 30) +
+                                'px; top:' + (mousePosition[1]+ 90) + 'px')
              .html("Equivaut à " + d.valeur/data[0][1].co2_cd + " disque(s) physique");
               })
             .on("mouseout", function(d) {
