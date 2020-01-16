@@ -217,7 +217,7 @@
     
     const div = d3.select(".body-hist").append("div")
     .attr("class", "tooltip")         
-    //.style("opacity", 0);
+    .style("opacity", 0);
     
     function load_histo(value) { 
       d3.json("./datasets/Roipancakes_processed.json", function(data) {
@@ -299,13 +299,10 @@
              div.transition()        
              .duration(100)      
              .style("opacity", .9);
-              /*div.html("Émission d'un CD physique : " + data[0][1].co2_cd + "g")
-              .style("left", (d3.event.pageX + 10) + "px")     
-              .style("top", (d3.event.pageY - 50) + "px");*/  
               var mousePosition = d3.mouse(this);
-             div.attr('style', 'left:' + (mousePosition[0] + 15) +
-                                'px; top:' + (mousePosition[1] - 35) + 'px')
-             .html("Émission d'un CD physique : " + data[0][1].co2_cd + "g");
+             div.attr('style', 'left:' + (mousePosition[0]) +
+                                'px; top:' + (mousePosition[1]) + 'px')
+             .html("Émission d'un unique CD physique : " + data[0][1].co2_cd + "g");
               })
             .on("mouseout", function(d) {
               div.transition()
