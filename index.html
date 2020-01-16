@@ -62,13 +62,13 @@
       }
       div.tooltip {
         color: #222;
-        background-color: #404040;
+        background-color: pink;
         padding: .5em;
         border-radius: 2px;
         opacity: 0.9;
         position: absolute;
-		width: 173px;
-		height: 18px
+		width: 1000px;
+		height: 500px
     }
     #container{
       position: relative;
@@ -219,7 +219,7 @@
     
     const div = d3.select(".body-hist").append("div")
     .attr("class", "tooltip")         
-    .style("opacity", 0);
+    //.style("opacity", 0);
     
     function load_histo(value) { 
       d3.json("./datasets/Roipancakes_processed.json", function(data) {
