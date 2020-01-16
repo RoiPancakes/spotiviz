@@ -62,14 +62,12 @@
       }
       div.tooltip {
         color: #222;
-        background-color: pink;
+        background-color: black;
+      	color: white;
         padding: .5em;
         border-radius: 2px;
         opacity: 0.9;
         position: absolute;
-		width: 1000px;
-		height: 500px
-    }
     #container{
       position: relative;
     }
@@ -301,9 +299,13 @@
              div.transition()        
              .duration(100)      
              .style("opacity", .9);
-              div.html("Émission d'un CD physique : " + data[0][1].co2_cd + "g")
+              /*div.html("Émission d'un CD physique : " + data[0][1].co2_cd + "g")
               .style("left", (d3.event.pageX + 10) + "px")     
-              .style("top", (d3.event.pageY - 50) + "px");
+              .style("top", (d3.event.pageY - 50) + "px");*/  
+              var mousePosition = d3.mouse(this);
+             div.attr('style', 'left:' + (mousePosition[0] + 15) +
+                                'px; top:' + (mousePosition[1] - 35) + 'px')
+             .html("Émission d'un CD physique : " + data[0][1].co2_cd + "g");
               })
             .on("mouseout", function(d) {
               div.transition()
