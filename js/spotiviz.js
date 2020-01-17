@@ -453,235 +453,173 @@
 /* HISTO */
 /* --------------------------------- */
 {
-    // Feel free to change or delete any of the code you see in this editor!
-		const margin = {top: 20, right: 20, bottom: 90, left: 120},
-    width = 1000 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
-    
-    var final_data
-    
-    var graphes;
-    var deleted = true;
-    
-    const x = d3.scaleBand()
-        .range([0, width])
-        .padding(0.1);
+  dataset = "./datasets/Qcharton_processed.json"
+  load_data() 
+  setTimeout(load_histo, 2000)
+  
+const margin = {top: 20, right: 20, bottom: 90, left: 120},
+  width = 1000 - margin.left - margin.right,
+  height = 400 - margin.top - margin.bottom;
+  
+  var final_data
+  
+  var graphes;
+  var deleted = true;
+  
+  const x = d3.scaleBand()
+      .range([0, width])
+      .padding(0.1);
 
-    const y = d3.scaleLinear()
-        .range([height, 0])
-    
-	const svg = d3.select(".body-hist").append("svg")
-    .attr("id", "svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+  const y = d3.scaleLinear()
+      .range([height, 0])
+  
+const svg = d3.select(".body-hist").append("svg")
+  .attr("id", "svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+  var g = d3.select("svg")
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
-    var g = d3.select("svg")
-    	.append("g")
-    
-    const div = d3.select(".body-hist").append("div")
-    .attr("class", "tooltip")         
-    .style("opacity", 0);
-    
-    function load_histo(value) { 
-      d3.json("./datasets/Roipancakes_processed.json", function(data) {
-        co2 = [0, 0, 0]
-        noms = ["Physique", "Dématérialisé", "Spotify"]
-        for(var i = 0; i<data.length; i++){
-          if(data[i][1].nb_ecoute_tot >= value){
-            co2[0] += data[i][1].co2_cd
-          	co2[1] += data[i][1].co2_demat
-          	co2[2] += data[i][1].co2_spotify
-          }
-        }
-
-        final_data = [{"nom": noms[0], "valeur": Math.floor(co2[0])},
-                         {"nom": noms[1], "valeur": Math.floor(co2[1])},
-                         {"nom": noms[2], "valeur": Math.floor(co2[2])}];
-
-        x.domain(final_data.map(function(d, i) { return d.nom; }));
-        y.domain([0, d3.max(final_data, function(d) { return d.valeur; })+150]);
-        
-        /*svg.selectAll("rect").remove()
-      	svg.selectAll("g").remove()*/
-        
-      	if(d3.max(final_data, function(d) { return d.valeur; }) > 0){
-          if(deleted){
-            svg.selectAll("text").remove()
-            deleted = false;
-
-            let axx = svg.append("g")
-              .attr("transform", "translate(0," + height + ")")
-              .call(d3.axisBottom(x).tickSize(0))
-
-            axx.selectAll("line").attr("stroke","white")
-            axx.selectAll("path").attr("stroke","white")
-            axx.selectAll("text")
-              .attr("font-size", "large")
-              .attr("fill","white")
-              .attr("transform", "translate(-75, 8)");
-
-            let axy = svg.append("g")
-             .call(d3.axisLeft(y));
-            axy.selectAll("line").attr("stroke","white")
-            axy.selectAll("path").attr("stroke","white")
-             axy.selectAll("text")
-              .attr("fill","white")
-              .attr("transform", "translate(-10,0)")
-              .attr("font-size", "large");
-
-            var x_r = 0
-            var y_r = 0
-
-            width_r = 100
-            
-
-           graphes = svg.selectAll(".graph")
-          .data(final_data);
-            
-            
-           var bar = graphes.enter()
-          .append("g")
-           
-           bar.append("rect")
-          .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
-          .attr("y", function(d){y_r = y(0); return y(0);})
-          .attr("width", width_r)
-          .attr("height", function(d){return 0;})
-          .attr("fill", function(d)
-                {if(d.nom === "Spotify"){
-                  return "#00f669"
-                }
-                if(d.nom === "Physique"){
-                   return "#c0c7c3"
-                 }
-                if(d.nom === "Dématérialisé"){
-                   return "#ff8a0c"
-                 }
-                })
-               .on("mousemove", function(d) {
-             div.transition()        
-             .duration(100)      
-             .style("opacity", .9);
-              var mousePosition = d3.mouse(this);
-             div.attr('style', 'left:' + (mousePosition[0]+ 30) +
-                                'px; top:' + (mousePosition[1]+ 90) + 'px')
-             .html("Equivaut à " + Math.round(d.valeur/data[0][1].co2_cd*100)/100 + " disque(s) physique");
-              })
-            .on("mouseout", function(d) {
-              div.transition()
-              .duration(500)
-              .style("opacity", 0);
-              })
-          .transition()
-          .duration(1500)
-          .attr("height", function(d){return height-y(d.valeur);})
-          .attr("y", function(d){return y(d.valeur);});
-            
-          bar.append("text")
-          .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
-          .attr("y", function(d){y_r = y(0); return y(0);})
-          .text(function(d){return d.valeur+" g"})
-          .attr("fill", function(d)
-                {if(d.nom === "Spotify"){
-                  return "#00f669"
-                }
-                if(d.nom === "Physique"){
-                   return "#c0c7c3"
-                 }
-                if(d.nom === "Dématérialisé"){
-                   return "#ff8a0c"
-                 }
-                })
-          .attr("font-size", "1.15em")
-          .attr("transform", "translate(30, -5)")
-          .transition()
-          .duration(1500)
-          .attr("height", function(d){return height-y(d.valeur);})
-          .attr("y", function(d){return y(d.valeur);});
-          
-          
-        } else {
-          	svg.selectAll("g").remove();
-            svg.append("g")
-              .attr("transform", "translate(0," + height + ")")
-              .call(d3.axisBottom(x).tickSize(0))
-              .selectAll("text")
-              .attr("font-size", "large")
-              .attr("fill","white")
-              .attr("transform", "translate(-48, 8)");
-          
-            svg.append("g")
-             .call(d3.axisLeft(y))
-             .selectAll("text")
-              .attr("font-size", "large");
-          
-          // MISE A JOUR
-          
-          var g = svg.selectAll(".bar").selectAll("rect").data(final_data)
-          
-          g.exit().remove();
-          
-         	graphes = graphes.data(final_data)
-          
-          console.log(          graphes.data(final_data, function(d){ return d; })
-            .enter() .selectAll(".bar").selectAll("rect"))
-          
-          graphes.data(final_data, function(d){ return d; })
-            .enter()
-          .selectAll(".bar")
-          .selectAll("rect")
-          .merge(graphes)
-          .transition()
-          .duration(500)
-          .attr("height", function(d){return height-y(d.valeur);})
-          .attr("y", function(d){return y(d.valeur);});
-          
-         
-        }
-      } else {
-       	svg.selectAll("rect").remove()
-      	svg.selectAll("g").remove()
-        svg.selectAll("text").remove()
-        deleted = true;
-        svg.append("text")
-      .text("Aucun album ne correspond.")
-      .attr("y", 200)
-      .attr("x", 120)
-      .attr("font-size", 36)
-      .attr("font-family", "monospace")
-      .style('fill', 'white')
+  
+  const div = d3.select(".body-hist").append("div")
+  .attr("class", "tooltip")         
+  .style("opacity", 0);
+  
+  var final_data = [];
+  
+  function load_data() {
+    d3.json(dataset, function(data) {
+      
+      co2 = [0, 0, 0]
+      noms = ["Physique", "Dématérialisé", "Spotify"]
+      for(var i = 0; i<data.length; i++){
+          co2[0] += data[i][1].co2_cd
+          co2[1] += data[i][1].co2_demat
+          co2[2] += data[i][1].co2_spotify
       }
-			// text label for the x axis
-        /*
-  	svg.append("text")
-      .attr("font-size", "22")             
-      .attr("transform",
-            "translate(" + (width/2) + " ," + 
-                           (height + margin.top + 40) + ")")
-      .style("text-anchor", "middle")
-      .text("Comparaison de la production de gaz à effet de serre")
-        */
-        
-        
-    // text label for the y axis
-  		svg.append("text")
-      .attr("transform", "rotate(-90), translate(0, -25)")
-      .attr("y", 32 - margin.left)
-      .attr("x",0 - (height / 2))
-      .attr("dy", "1em")
-      .attr("font-size", "large")
-      .style("text-anchor", "middle")
-      .attr("fill","white")
-      .text("g de Co2 émit");
-      });
+      final_data = [{"nom": noms[0], "valeur": Math.floor(co2[0])},
+                       {"nom": noms[1], "valeur": Math.floor(co2[1])},
+                       {"nom": noms[2], "valeur": Math.floor(co2[2])}];
+
+      x.domain(final_data.map(function(d, i) { return d.nom; }));
+      y.domain([0, d3.max(final_data, function(d) { return d.valeur; })+150]);
+      
+      /*svg.selectAll("rect").remove()
+      svg.selectAll("g").remove()*/
+      
+          svg.selectAll("text").remove()
+          deleted = false;
+
+          let axx = svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x).tickSize(0))
+
+          axx.selectAll("line").attr("stroke","white")
+          axx.selectAll("path").attr("stroke","white")
+          axx.selectAll("text")
+            .attr("font-size", "large")
+            .attr("fill","white")
+            .attr("transform", "translate(-75, 8)");
+
+          let axy = svg.append("g")
+           .call(d3.axisLeft(y));
+          axy.selectAll("line").attr("stroke","white")
+          axy.selectAll("path").attr("stroke","white")
+           axy.selectAll("text")
+            .attr("fill","white")
+            .attr("transform", "translate(-10,0)")
+            .attr("font-size", "large");
+          // text label for the y axis
+    svg.append("text")
+    .attr("transform", "rotate(-90), translate(0, -25)")
+    .attr("y", 32 - margin.left)
+    .attr("x",0 - (height / 2))
+    .attr("dy", "1em")
+    .attr("font-size", "large")
+    .style("text-anchor", "middle")
+    .attr("fill","white")
+    .text("g de Co2 émit");
+
+    });
+  }
+         
+    
+    function load_histo(){
+      d3.json(dataset, function(data) {
+          width_r = 100
+          
+          
+         graphes = svg.selectAll(".graph")
+        .data(final_data);
+          
+          
+         var bar = graphes.enter()
+        .append("g")
+         
+         bar.append("rect")
+        .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
+        .attr("y", function(d){y_r = y(0); return y(0);})
+        .attr("width", width_r)
+        .attr("height", function(d){return 0;})
+        .attr("fill", function(d)
+              {if(d.nom === "Spotify"){
+                return "#00f669"
+              }
+              if(d.nom === "Physique"){
+                 return "#c0c7c3"
+               }
+              if(d.nom === "Dématérialisé"){
+                 return "#ff8a0c"
+               }
+              })
+             .on("mousemove", function(d) {
+           div.transition()        
+           .duration(100)      
+           .style("opacity", .9);
+            var mousePosition = d3.mouse(this);
+           div.attr('style', 'left:' + (mousePosition[0]+ 30) +
+                              'px; top:' + (mousePosition[1]+ 90) + 'px')
+           .html("Equivaut à " + Math.round(d.valeur/data[0][1].co2_cd*100)/100 + " disque(s) physique");
+            })
+          .on("mouseout", function(d) {
+            div.transition()
+            .duration(500)
+            .style("opacity", 0);
+            })
+        .transition()
+        .duration(1500)
+        .attr("height", function(d){return height-y(d.valeur);})
+        .attr("y", function(d){return y(d.valeur);});
+          
+        bar.append("text")
+        .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
+        .attr("y", function(d){y_r = y(0); return y(0);})
+        .text(function(d){return d.valeur+" g"})
+        .attr("fill", function(d)
+              {if(d.nom === "Spotify"){
+                return "#00f669"
+              }
+              if(d.nom === "Physique"){
+                 return "#c0c7c3"
+               }
+              if(d.nom === "Dématérialisé"){
+                 return "#ff8a0c"
+               }
+              })
+        .attr("font-size", "1.15em")
+        .attr("transform", "translate(30, -5)")
+        .style("opacity", 0)
+        .transition()
+        .duration(1500)
+        .style("opacity", 1)
+        .attr("height", function(d){return height-y(d.valeur);})
+        .attr("y", function(d){return y(d.valeur);});
       
       
-    }
-    
-    
-	load_histo(1)
+   });
+  }
 }
 
 
