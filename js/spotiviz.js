@@ -68,9 +68,9 @@
         var yAxisRight = d3.axisLeft(y).tickSize(10);
 
         /* LINE CHART */
-        var margin_linechart = {top: 10, right: 180, bottom: 30, left: 60},
-            width_linechart = 700 - margin_linechart.left - margin_linechart.right,
-            height_linechart = 400 - margin_linechart.top - margin_linechart.bottom;
+        var margin_linechart = {top: 0, right: 780, bottom: 30, left: 60},
+            width_linechart = 1400 - margin_linechart.left - margin_linechart.right,
+            height_linechart = 500 - margin_linechart.top - margin_linechart.bottom;
         var h_svg_linechart = height_linechart + margin_linechart.top + margin_linechart.bottom;
         var svg_linechart = d3.select(".body-album")
             .append("svg")
@@ -596,6 +596,20 @@
             });
 
         /* LINE CHART */
+
+        var desc_linechart = svg_linechart.append("text")
+        desc_linechart.append("tspan")
+            .text("Ce graphique montre une prédiction du temps")
+            .attr("x", 600)
+            .attr("y", 190);
+        desc_linechart.append("tspan")
+            .text("d'écoute d'un album nécessaire pour consommer")
+            .attr("x", 600)
+            .attr("y", 205);
+        desc_linechart.append("tspan")
+            .text("plus que le dématérialisé en orange et le CD en gris.")
+            .attr("x", 600)
+            .attr("y", 220);
         function updateLineChart(album){
             var spot = album[1].co2_spotify
             var demat = album[1].co2_demat
@@ -643,15 +657,15 @@
             d3.select(tooltip_cd.node().parentNode)
                 .transition()
                 .duration(500)
-                .attr("x", x_linechart(cd/spot))
-                .attr("y", y_linechart(cd))
+                .attr("x", x_linechart(cd/spot)+3)
+                .attr("y", y_linechart(cd)+3)
             tooltip_cd
                 .text("Croisement au bout de " + Math.ceil(cd/spot) +" mois.");
             d3.select(tooltip_demat.node().parentNode)
                 .transition()
                 .duration(500)
-                .attr("x", x_linechart(demat/spot))
-                .attr("y", y_linechart(demat))
+                .attr("x", x_linechart(demat/spot)+3)
+                .attr("y", y_linechart(demat)+3)
             tooltip_demat
                 .text("Croisement au bout de " + Math.ceil(demat/spot) +" mois.");
             svg_linechart.select(".y")
