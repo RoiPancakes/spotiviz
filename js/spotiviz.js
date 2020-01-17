@@ -730,9 +730,9 @@
   });
   
   
-const margin = {top: 20, right: 20, bottom: 90, left: 120},
+const margin = {top: 30, right: 20, bottom: 90, left: 120},
   width = 1000 - margin.left - margin.right,
-  height = 400 - margin.top - margin.bottom;
+  height = 500 - margin.top - margin.bottom;
   
   var final_data
   
@@ -891,13 +891,18 @@ const svg = d3.select(".body-hist").append("svg")
                }
               })
         .attr("font-size", "1.15em")
-        .attr("transform", "translate(30, -5)")
         .style("opacity", 0)
         .transition()
         .duration(1500)
         .style("opacity", 1)
         .attr("height", function(d){return height-y(d.valeur);})
-        .attr("y", function(d){return y(d.valeur);});
+        .attr("y", function(d){return y(d.valeur);})
+        .each(function(){
+            w_txt = (width_r - d3.select(this).node().getBBox().width)/2
+            d3.select(this)
+            .attr("transform", "translate("+w_txt+", -8)");
+        });
+
       
       
    });
