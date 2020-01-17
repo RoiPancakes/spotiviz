@@ -716,18 +716,22 @@
     load_data() 
 
     //L'histogramme est chargé dès lors qu'on a suffisemment scroll
-    var scrolling = 0
+    var scrolling = window.scrollY;
     var loaded = false
-    window.addEventListener('scroll', function(e) {
-        scrolling = window.scrollY;
-
-        if(scrolling > 1000 && !loaded){
-            load_histo()
-            console.log("loading")
-            loaded = true
+    if(scrolling > 1000){
+        load_histo()
+        loaded = true
+    } else {
+        var cllbck = function(e) {
+            scrolling = window.scrollY;
+            if(scrolling > 1000 && !loaded){
+                load_histo()
+                loaded = true
+                window.removeEventListener("scroll", cllbck)
+            }
         }
-
-    });
+        window.addEventListener('scroll', cllbck);
+    }
 
 
     const margin = {top: 30, right: 20, bottom: 90, left: 120},
