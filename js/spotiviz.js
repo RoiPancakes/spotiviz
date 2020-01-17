@@ -90,6 +90,14 @@
             .attr("transform", "translate(0," + height_linechart + ")")
             .call(d3.axisBottom(x_linechart))
             .classed("x",true);
+			
+		// text label for the x axis
+		svg_linechart.append("text")             
+		    .attr("transform", 
+			"translate(" + (width_linechart/2) + " ," + 
+			(height_linechart + margin_linechart.top + 20) + ")")
+			.style("text-anchor", "middle")
+			.text("Mois");
 
         var y_linechart = d3.scaleLinear()
             .range([height_linechart,0]);
