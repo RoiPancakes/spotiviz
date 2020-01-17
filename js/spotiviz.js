@@ -448,6 +448,7 @@
 /* HISTO */
 /* --------------------------------- */
 {
+  dataset = "./datasets/Qcharton_processed.json"
   load_data() 
   setTimeout(load_histo, 2000)
   
@@ -484,7 +485,7 @@ const svg = d3.select(".body-hist").append("svg")
   var final_data = [];
   
   function load_data() {
-    d3.json("./datasets/Roipancakes_processed.json", function(data) {
+    d3.json(dataset, function(data) {
       
       co2 = [0, 0, 0]
       noms = ["Physique", "Dématérialisé", "Spotify"]
@@ -541,7 +542,7 @@ const svg = d3.select(".body-hist").append("svg")
          
     
     function load_histo(){
-      d3.json("./datasets/Roipancakes_processed.json", function(data) {
+      d3.json(dataset, function(data) {
           width_r = 100
           
           
