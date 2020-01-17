@@ -484,7 +484,7 @@ const svg = d3.select(".body-hist").append("svg")
   var final_data = [];
   
   function load_data() {
-    d3.json("./datasets/Roipancakes_processed.json", function(data) {
+    d3.json("Roipancakes_processed.json", function(data) {
       
       co2 = [0, 0, 0]
       noms = ["Physique", "Dématérialisé", "Spotify"]
@@ -525,13 +525,23 @@ const svg = d3.select(".body-hist").append("svg")
             .attr("fill","white")
             .attr("transform", "translate(-10,0)")
             .attr("font-size", "large");
+          // text label for the y axis
+    svg.append("text")
+    .attr("transform", "rotate(-90), translate(0, -25)")
+    .attr("y", 32 - margin.left)
+    .attr("x",0 - (height / 2))
+    .attr("dy", "1em")
+    .attr("font-size", "large")
+    .style("text-anchor", "middle")
+    .attr("fill","white")
+    .text("g de Co2 émit");
 
     });
   }
          
     
     function load_histo(){
-      d3.json("Roipancakes_processed.json", function(data) {
+      d3.json("./datasets/Roipancakes_processed.json", function(data) {
           width_r = 100
           
           
@@ -594,22 +604,14 @@ const svg = d3.select(".body-hist").append("svg")
               })
         .attr("font-size", "1.15em")
         .attr("transform", "translate(30, -5)")
+        .style("opacity", 0)
         .transition()
         .duration(1500)
+        .style("opacity", 1)
         .attr("height", function(d){return height-y(d.valeur);})
         .attr("y", function(d){return y(d.valeur);});
       
       
-  // text label for the y axis
-    svg.append("text")
-    .attr("transform", "rotate(-90), translate(0, -25)")
-    .attr("y", 32 - margin.left)
-    .attr("x",0 - (height / 2))
-    .attr("dy", "1em")
-    .attr("font-size", "large")
-    .style("text-anchor", "middle")
-    .attr("fill","white")
-    .text("g de Co2 émit");
    });
   }
 }
