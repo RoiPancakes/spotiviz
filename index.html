@@ -69,6 +69,20 @@
         opacity: 0.9;
         position: absolute;
       }
+      div.tooltip-cross {	
+          position: absolute;			
+          text-align: center;			
+          width: 150px;					
+          padding: 2px;				
+          font-size: 11px;
+          pointer-events: none;			
+          background-color:black;
+		  color:white;
+		  padding: .5em;
+		  border-radius: 7px;
+		  opacity: 0.9;
+		  position: absolute;
+	  }
     #container{
       position: relative;
     }
@@ -102,6 +116,13 @@
 
     .body-album{
         padding-top: 50px;
+    }
+
+    #cover-cpm:hover{
+        cursor: pointer;
+    }
+    a:hover{
+        color:#00f669;
     }
     </style>
   </head>
@@ -153,7 +174,7 @@
       </div>
     </section>
     <section id="album" class="hero">
-      <div class="hero-body">
+      <div class="hero-body" style="padding-bottom:0;">
         <div class="container">
           <h1 class="title has-text-centered">
             Visualisation par album
@@ -174,12 +195,12 @@
         <div class="container">
 			
             <p class="has-text-white has-text-justified">
-          Afin de quantifier les écoutes spotify en terme d’émission CO2, nous avons utilisé l’addon <a href=https://addons.mozilla.org/fr/firefox/addon/carbonalyser/>Carbonalyser</a>
+          Afin de quantifier les écoutes spotify en terme d’émission CO2, nous avons utilisé l’addon <a target="_blank" href=https://addons.mozilla.org/fr/firefox/addon/carbonalyser/>Carbonalyser</a>
 	Cet outil nous a permis de déduire les émissions carbone par minute dues à spotify. Grâce  la durée des musiques, nous avons pu quantifier les émissions causées par chaque écoute.<br>
-	Plus d’infos sur notre méthode <a href="https://github.com/RoiPancakes/spotiviz/blob/master/autre/Methodologie-V2.pdf">ici</a>.<br><br> 
+	Plus d’infos sur notre méthode <a target="_blank" href="https://github.com/RoiPancakes/spotiviz/blob/master/autre/Methodologie-V2.pdf">ici</a>.<br><br> 
 			</p>
 			<p class="has-text-white has-text-justified">
-	Nous avons utilisé les <a href=https://api-istex-fr.docelec.univ-lyon1.fr/ark:/67375/WNG-FL6KC73F-W/fulltext.pdf?auth=ip,fede&sid=ebsco,istex-view>travaux</a> de <i>Christopher L. Weber,Jonathan G. Koomey, et H. Scott Matthews</i> sur l'impact écologique de la consommation de musique.
+	Nous avons utilisé les <a target="_blank" href=https://api-istex-fr.docelec.univ-lyon1.fr/ark:/67375/WNG-FL6KC73F-W/fulltext.pdf?auth=ip,fede&sid=ebsco,istex-view>travaux</a> de <i>Christopher L. Weber,Jonathan G. Koomey, et H. Scott Matthews</i> sur l'impact écologique de la consommation de musique.
 			</p>
         
 		</div>
@@ -192,7 +213,7 @@
 			</h2>
         <div class="container">
 			<p class="has-text-white has-text-centered">
-         Ce projet a été réalisé dans le cadre du <a href=https://lyondataviz.github.io/teaching/lyon1-m2/2019/>cours</a> de Datavisualisation du <a href=http://master-info.univ-lyon1.fr/IA/>Master IA de l'Université Lyon 1</a>.<br>
+         Ce projet a été réalisé dans le cadre du <a target="_blank" href=https://lyondataviz.github.io/teaching/lyon1-m2/2019/>cours</a> de Datavisualisation du <a target="_blank" href=http://master-info.univ-lyon1.fr/IA/>Master IA de l'Université Lyon 1</a>.<br>
 		 Merci à Quentin C. qui nous as autorisé à utiliser ses données.<br>
 		 Ce projet à été réalisé par Valentin C., Alban F., Lucas M. et Julien V.
 		 </p>

@@ -33,10 +33,12 @@
   	
   d3.json("datasets/Roipancakes_processed.json", function(json){
       json.sort((a, b) => (a[1].co2_spotify < b[1].co2_spotify) ? 1 : -1)
+
+      /* PARTIE ALBUM */
       var selection = 0
       
       var width = 1800
-      var height = 600
+      var height = 640
       
       var w_canvas = 150
       var h_canvas = 450
@@ -65,6 +67,87 @@
       var yAxisLeft = d3.axisLeft(y).tickSize(-10);
       var yAxisRight = d3.axisLeft(y).tickSize(10);
       
+    /* LINE CHART */
+    var margin_linechart = {top: 10, right: 180, bottom: 30, left: 60},
+        width_linechart = 700 - margin_linechart.left - margin_linechart.right,
+        height_linechart = 400 - margin_linechart.top - margin_linechart.bottom;
+	var h_svg_linechart = height_linechart + margin_linechart.top + margin_linechart.bottom;
+    var svg_linechart = d3.select(".body-album")
+        .append("svg")
+        .attr("width", width_linechart + margin_linechart.left + margin_linechart.right)
+        .attr("height", 0)
+        .append("g")
+        .attr("transform", "translate(" + margin_linechart.left + "," + margin_linechart.top + ")");
+      svg_linechart.append("rect")
+          .attr("x", 0)
+          .attr("y",0)
+          .attr("width",width_linechart)
+          .attr("height", height_linechart)
+          .attr("fill", "white")
+      var x_linechart = d3.scaleLinear()
+          .range([0,width_linechart]);
+      svg_linechart.append("g")
+          .attr("transform", "translate(0," + height_linechart + ")")
+          .call(d3.axisBottom(x_linechart))
+          .classed("x",true);
+
+      var y_linechart = d3.scaleLinear()
+          .range([height_linechart,0]);
+      svg_linechart.append("g")
+          .call(d3.axisLeft(y_linechart))
+          .classed("y",true);
+
+
+      var line_demat = svg_linechart.append("line")
+          .attr("fill", "none")
+          .attr("stroke", "orange")
+          .attr("stroke-width", 1.5)
+
+      var line_cd = svg_linechart.append("line")
+          .attr("fill", "none")
+          .attr("stroke", "grey")
+          .attr("stroke-width", 1.5)
+
+      var line_spot = svg_linechart.append("line")
+          .attr("fill", "none")
+          .attr("stroke", "green")
+          .attr("stroke-width", 1.5)
+
+      var line_spot_bis = svg_linechart.append("line")
+          .attr("fill", "none")
+          .attr("stroke", "green")
+          .attr("stroke-width", 1.5)
+          .attr("stroke-dasharray", 2.5)
+
+      var cross_demat = svg_linechart.append("circle")
+          .attr("r", "4px")
+          .attr("fill", "orange")
+
+      var cross_cd = svg_linechart.append("circle")
+          .attr("r", "4px")
+          .attr("fill", "grey");
+
+      // create a tooltip
+      var tooltip_cd = svg_linechart
+          .append("foreignObject")
+          .attr("width", 150)
+          .attr("height", 100)
+          .append("xhtml:div")
+          .classed("tooltip-cross", true)
+          .style("position", "absolute")
+          .style("opacity", 0)
+
+      var tooltip_demat = svg_linechart
+          .append("foreignObject")
+          .attr("width", 150)
+          .attr("height", 100)
+          .append("xhtml:div")
+          .classed("tooltip-cross", true)
+          .style("position", "absolute")
+          .style("opacity", 0)
+
+
+    /* ALBUM */
       function createBar(parentNode, nom){
         parentNode.append('line')
           .style("stroke", "black")
@@ -109,7 +192,7 @@
             .attr("y", 30+h_canvas)
             .attr("class", "support")
       }
-      
+
       createBar(bar_spotify, "Spotify")
       createBar(bar_spotify_cmp, "Spotify")
       createBar(bar_demat, "Dématérialisé")
@@ -133,8 +216,26 @@
         .classed("spotify", true)
       bar_demat.select(".mask")
         .classed("demat", true)
-      
-		
+ 
+        bar_spotify_cmp.append("image")
+      	.attr("xlink:href", "https://cdn.shopify.com/s/files/1/0005/2751/products/gladsaxframe_large.JPG?v=1439211670")
+      	.attr("width", 144)
+        .attr("height", 146)
+      	.attr("x", 213)
+      	.attr("y", h_canvas+37)
+
+     
+		bar_spotify_cmp.append("image")
+        .attr("id", "cover-cpm")
+      	.attr("xlink:href", "")
+      	.attr("width", 120)
+        .attr("height", 120)
+      	.attr("x", 225)
+      	.attr("y", h_canvas+50)
+        .on("click", function(){
+            a_id = Number(d3.select(this).attr("data-aid"))
+            updateAlbum(json[a_id])
+        });
       
       var album_cover = svg.append("g");
 
@@ -291,16 +392,19 @@
           }
           else
               bar_spotify.select(".mask").attr("style", "height:"+y(album[1].co2_spotify)+"px")
-          bar_demat.select(".mask").attr("style", "height:"+y(album[1].co2_demat)+"px")
-          bar_cd.select(".mask").attr("style", "height:"+y(album[1].co2_cd)+"px")
+              bar_demat.select(".mask").attr("style", "height:"+y(album[1].co2_demat)+"px")
+              bar_cd.select(".mask").attr("style", "height:"+y(album[1].co2_cd)+"px")
                     //,"background-image: linear-gradient(rgba(255,255,255,1) 					   "+y(value)+"px,rgba(255,255,255,0)); height:"+(y(value)+15)+"px")
+          updateLineChart(album)
         }
       
 		var btn_expand = svg.append("foreignObject")
       	.attr("width", 250)
       	.attr("height", 100)
         .attr("style", "transition: 0.5s;")
-      	.attr("transform", "translate(360,520)")
+        .attr("x",360)
+        .attr("y",520)
+          //.attr("transform", "translate(360,520)")
       	.append("xhtml:button")
         .attr("class", "button is-dark is-medium")
         .text("Voir autres supports")
@@ -322,7 +426,15 @@
         if(compare===true){
             stopCompare()
         } else {
-
+          svg.select("#cover-cpm")
+            .attr("xlink:href", json[a_id][1].image)
+            .attr("data-aid", a_id)
+            d3.select(btn_expand.node().parentNode).transition()
+                .duration(1000)
+                .attr("transform", "translate(40,0)")
+          d3.select(btn_compare.node().parentNode).transition()
+              .duration(1000)
+              .attr("transform", "translate(40,0)")
             updateAlbum(json[a_id])
             value_cmp = value
             compare = true
@@ -330,7 +442,10 @@
             .attr("class", "button is-medium")
             .text("Réduire")
             compare = true
-            bar_spotify_cmp.attr("style", "opacity:1;")
+            bar_spotify_cmp.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:1;")
             bar_spotify.transition()
              .duration(1000)
              .ease(d3.easeQuadOut)
@@ -341,13 +456,19 @@
 
       });
       function stopCompare(){
+          d3.select(btn_expand.node().parentNode).transition()
+              .duration(1000)
+              .attr("transform", "translate(0,0)")
+          d3.select(btn_compare.node().parentNode).transition()
+              .duration(1000)
+              .attr("transform", "translate(0,0)")
           compare = false
           btn_compare
               .attr("class", "button is-medium is-black")
               .text("Comparer album")
           bar_spotify_cmp
               .transition()
-              .duration(1000)
+              .duration(500)
               .ease(d3.easeQuadOut)
               .attr("style", "opacity:0;")
           bar_spotify.transition()
@@ -361,10 +482,14 @@
         if(compare===true)
           stopCompare()
         if(expended===false){
+		  d3.select(svg_linechart.node().parentNode).transition()
+			.duration(1000)
+			.attr("height", h_svg_linechart)
+
           d3.select(this.parentNode)
              .transition()
              .duration(1000)
-      	    .attr("transform", "translate(275,520)")
+      	    .attr("transform", "translate(-85,0)")
           d3.select(this)
             .attr("class", "button is-medium")
             .text("Réduire")
@@ -400,10 +525,14 @@
         updateAlbum(json[a_id])
       });
       function closeExpend(btn){
+          d3.select(svg_linechart.node().parentNode).transition()
+			.duration(1000)
+			.attr("height", 0)
+
           d3.select(btn.parentNode)
              .transition()
              .duration(1000)
-      	    .attr("transform", "translate(360,520)")
+      	    .attr("transform", "translate(0,0)")
           d3.select(btn)
             .attr("class", "button is-dark is-medium")
             .text("Voir autres supports")
@@ -447,7 +576,126 @@
         }
       });
         
-    	});
+      /* LINE CHART */
+      function updateLineChart(album){
+          var spot = album[1].co2_spotify
+          var demat = album[1].co2_demat
+          var cd = album[1].co2_cd
+          x_linechart.domain([0,Math.ceil(cd/spot)+1])
+          y_linechart.domain([0,Math.ceil(cd)+10])
+          line_demat
+              .transition()
+              .duration(500)
+              .attr("x1", x_linechart(0))
+              .attr("y1",y_linechart(demat))
+              .attr("x2",x_linechart(Math.ceil(cd/spot)+1))
+              .attr("y2",y_linechart(demat));
+          line_cd
+              .transition()
+              .duration(500)
+              .attr("x1", x_linechart(0))
+              .attr("y1",y_linechart(cd))
+              .attr("x2",x_linechart(Math.ceil(cd/spot)+1))
+              .attr("y2",y_linechart(cd))
+          line_spot
+              .transition()
+              .duration(500)
+              .attr("x1", x_linechart(0))
+              .attr("y1",y_linechart(0))
+              .attr("x2",x_linechart(1))
+              .attr("y2",y_linechart(spot))
+          line_spot_bis
+              .transition()
+              .duration(500)
+              .attr("x1",x_linechart(1))
+              .attr("y1",y_linechart(spot))
+              .attr("x2", x_linechart(Math.ceil(cd/spot)+1))
+              .attr("y2",y_linechart(spot * (Math.ceil(cd/spot)+1)))
+          cross_demat
+              .transition()
+              .duration(500)
+              .attr("cx", x_linechart(demat/spot))
+              .attr("cy", y_linechart(demat))
+          cross_cd
+              .transition()
+              .duration(500)
+              .attr("cx", x_linechart(cd/spot))
+              .attr("cy", y_linechart(cd))
+          d3.select(tooltip_cd.node().parentNode)
+              .transition()
+              .duration(500)
+              .attr("x", x_linechart(cd/spot))
+              .attr("y", y_linechart(cd))
+          tooltip_cd
+              .text("Croisement au bout de " + Math.ceil(cd/spot) +" mois.");
+          d3.select(tooltip_demat.node().parentNode)
+              .transition()
+              .duration(500)
+              .attr("x", x_linechart(demat/spot))
+              .attr("y", y_linechart(demat))
+          tooltip_demat
+              .text("Croisement au bout de " + Math.ceil(demat/spot) +" mois.");
+          svg_linechart.select(".y")
+            .transition()
+            .duration(500)
+            .call(d3.axisLeft(y_linechart))
+          svg_linechart.select(".x")
+            .transition()
+            .duration(500)
+            .call(d3.axisBottom(x_linechart))
+      }
+
+      svg_linechart.on("mousemove", function(e){
+          var spot = json[a_id][1].co2_spotify
+          var demat = json[a_id][1].co2_demat
+          var cd = json[a_id][1].co2_cd
+
+          var mx = d3.mouse(this)[0];
+          var my = d3.mouse(this)[1];
+          if(eucl(mx, my, x_linechart(cd/spot), y_linechart(cd)) > eucl(mx, my, x_linechart(demat/spot), y_linechart(demat))){
+              cross_demat.attr("r", "6px")
+                  .attr("fill", "red");
+              cross_cd.attr("r", "4px")
+                  .attr("fill", "grey");
+              tooltip_cd.transition()		
+                  .duration(50)		
+                  .style("opacity", 0);
+              tooltip_demat.transition()		
+                  .duration(50)		
+                  .style("opacity", 1);
+
+          }else{
+              cross_cd.attr("r", "6px")
+                  .attr("fill", "red");
+              cross_demat.attr("r", "4px")
+                  .attr("fill", "orange");
+              tooltip_demat.transition()		
+                  .duration(50)		
+                  .style("opacity", 0);
+              tooltip_cd.transition()		
+                  .duration(50)		
+                  .style("opacity", 1);
+          }
+      });
+
+      svg_linechart.on("mouseout", function(){
+          tooltip_demat.transition()		
+              .duration(50)		
+              .style("opacity", 0);
+          tooltip_cd.transition()		
+              .duration(50)		
+              .style("opacity", 0);
+          cross_cd.attr("r", "4px")
+              .attr("fill", "grey");
+          cross_demat.attr("r", "4px")
+              .attr("fill", "orange");
+      });
+
+      function eucl(x1, y1, x2, y2){
+          return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1,2))
+      }
+
+  });
 }
 /* --------------------------------- */
 /* HISTO */
