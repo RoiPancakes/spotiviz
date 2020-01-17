@@ -484,7 +484,7 @@ const svg = d3.select(".body-hist").append("svg")
   var final_data = [];
   
   function load_data() {
-    d3.json("Roipancakes_processed.json", function(data) {
+    d3.json("./datasets/Roipancakes_processed.json", function(data) {
       
       co2 = [0, 0, 0]
       noms = ["Physique", "Dématérialisé", "Spotify"]
