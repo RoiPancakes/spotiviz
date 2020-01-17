@@ -247,7 +247,11 @@
           if(expended===true) value = Math.max(album[1].co2_spotify, album[1].co2_cd, album[1].co2_demat)
           else value = album[1].co2_spotify
           //spotify_smoke.smoke = scaleSmoke(album[1].co2_spotify)
-          y.domain([50,0])
+          y.domain([10,0])
+          if(value>10)
+            y.domain([20,0])
+          if(value>20)
+            y.domain([50,0])
           if(value>50)
             y.domain([100,0])
           if(value>100)
