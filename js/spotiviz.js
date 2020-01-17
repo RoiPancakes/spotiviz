@@ -38,7 +38,7 @@
         var selection = 0
 
         var width = 1800
-        var height = 640
+        var height = 645
 
         var w_canvas = 150
         var h_canvas = 450
@@ -100,7 +100,7 @@
 
         var line_demat = svg_linechart.append("line")
             .attr("fill", "none")
-            .attr("stroke", "orange")
+            .attr("stroke", "#ff8a0c")
             .attr("stroke-width", 1.5)
 
         var line_cd = svg_linechart.append("line")
@@ -110,18 +110,18 @@
 
         var line_spot = svg_linechart.append("line")
             .attr("fill", "none")
-            .attr("stroke", "green")
+            .attr("stroke", "#00f669")
             .attr("stroke-width", 1.5)
 
         var line_spot_bis = svg_linechart.append("line")
             .attr("fill", "none")
-            .attr("stroke", "green")
+            .attr("stroke", "#00f669")
             .attr("stroke-width", 1.5)
             .attr("stroke-dasharray", 2.5)
 
         var cross_demat = svg_linechart.append("circle")
             .attr("r", "4px")
-            .attr("fill", "orange")
+            .attr("fill", "#ff8a0c")
 
         var cross_cd = svg_linechart.append("circle")
             .attr("r", "4px")
@@ -225,6 +225,11 @@
             .attr("y", h_canvas+37)
 
 
+
+        bar_spotify_cmp.append("text")
+            .attr("id", "title-cmp")
+            .attr("x", 225)
+            .attr("y", h_canvas+50+140)
         bar_spotify_cmp.append("image")
             .attr("id", "cover-cpm")
             .attr("xlink:href", "")
@@ -237,7 +242,8 @@
                 updateAlbum(json[a_id])
             });
 
-        var album_cover = svg.append("g");
+        var album_cover = svg.append("g")
+                .attr("transform", "translate(0,50)");
 
         var cover_size = 300
         var y_img = 15
@@ -403,7 +409,7 @@
         //Code du bouton "Voir plus"
         var btn_expand = svg.append("foreignObject")
             .attr("width", 250)
-            .attr("height", 100)
+            .attr("height", 50)
             .attr("style", "transition: 0.5s;")
             .attr("x",360)
             .attr("y",520)
@@ -415,9 +421,9 @@
         //Code du bouton "Comparer"
         var btn_compare = album_cover.append("foreignObject")
             .attr("x", (w_canvas+margin_left) + cover_size/2 - 45)
-            .attr("y", y_img + cover_size + 90)
-            .attr("width", 250)
-            .attr("height", 100)
+            .attr("y", y_img + cover_size + 155)
+            .attr("width", 200)
+            .attr("height", 50)
             .attr("style", "transition: 0.5s;")
             .append("xhtml:button")
             .attr("class", "button is-dark is-medium")
@@ -431,6 +437,8 @@
             if(compare===true){
                 stopCompare()
             } else {
+                svg.select("#title-cmp")
+                    .text(json[a_id][0])
                 svg.select("#cover-cpm")
                     .attr("xlink:href", json[a_id][1].image)
                     .attr("data-aid", a_id)
@@ -505,7 +513,7 @@
                 album_cover.transition()
                     .duration(1000)
                     .ease(d3.easeQuadOut)
-                    .attr("transform", "translate(" + w_canvas + ",0)")
+                    .attr("transform", "translate(" + w_canvas + ",50)")
 
                 //spotify_smoke.changeColor([20,120,20])
                 spotify_smoke.changeColor([0,246,105])
@@ -568,7 +576,7 @@
             album_cover.transition()
                 .duration(1000)
                 .ease(d3.easeQuadOut)
-                .attr("transform", "translate(0,0)")
+                .attr("transform", "translate(0,50)")
 
         }
         //Parcours des albums avec les flèches
@@ -679,7 +687,7 @@
                 cross_cd.attr("r", "6px")
                     .attr("fill", "red");
                 cross_demat.attr("r", "4px")
-                    .attr("fill", "orange");
+                    .attr("fill", "#ff8a0c");
                 tooltip_demat.transition()		
                     .duration(50)		
                     .style("opacity", 0);
@@ -699,7 +707,7 @@
             cross_cd.attr("r", "4px")
                 .attr("fill", "grey");
             cross_demat.attr("r", "4px")
-                .attr("fill", "orange");
+                .attr("fill", "#ff8a0c");
         });
 
         function eucl(x1, y1, x2, y2){
