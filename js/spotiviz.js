@@ -68,7 +68,7 @@
         var yAxisRight = d3.axisLeft(y).tickSize(10);
 
         /* LINE CHART */
-        var margin_linechart = {top: 0, right: 780, bottom: 30, left: 60},
+        var margin_linechart = {top: 0, right: 780, bottom: 50, left: 60},
             width_linechart = 1400 - margin_linechart.left - margin_linechart.right,
             height_linechart = 500 - margin_linechart.top - margin_linechart.bottom;
         var h_svg_linechart = height_linechart + margin_linechart.top + margin_linechart.bottom;
@@ -95,9 +95,18 @@
 		svg_linechart.append("text")             
 		    .attr("transform", 
 			"translate(" + (width_linechart/2) + " ," + 
-			(height_linechart + margin_linechart.top + 20) + ")")
+			(height_linechart + margin_linechart.top + 40) + ")")
 			.style("text-anchor", "middle")
 			.text("Mois");
+        svg_linechart.append("text")
+            .attr("transform", "rotate(-90), translate(0, -25)")
+            .attr("y", 32 - margin_linechart.left)
+            .attr("x",0 - (height_linechart / 2) - 5)
+            .attr("dy", "1em")
+            .attr("font-size", "medium")
+            .style("text-anchor", "middle")
+            .text("g de Co2 émit");
+
 
         var y_linechart = d3.scaleLinear()
             .range([height_linechart,0]);
