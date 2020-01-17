@@ -32,12 +32,12 @@
     
     
   	
-  d3.json("datasets/Qcharton_processed.json", function(json){
+  d3.json("datasets/Roipancakes_processed.json", function(json){
       json.sort((a, b) => (a[1].co2_spotify < b[1].co2_spotify) ? 1 : -1)
       var selection = 0
       
       var width = 1800
-      var height = 550
+      var height = 600
       
       var w_canvas = 150
       var h_canvas = 450
@@ -124,20 +124,24 @@
         .attr("stroke", "#00f669")
       bar_demat.select(".support")
         .attr("stroke", "#ff8a0c")
+      bar_spotify.select(".mask")
+        .classed("spotify", true)
+      bar_demat.select(".mask")
+        .classed("demat", true)
       
 		
       
       var album_cover = svg.append("g");
 
       var cover_size = 300
-      var y_img = (h_canvas-cover_size)/2
+      var y_img = 15
        
       album_cover.append("image")
       	.attr("xlink:href", "https://cdn.shopify.com/s/files/1/0005/2751/products/gladsaxframe_large.JPG?v=1439211670")
       	.attr("width", cover_size+61)
         .attr("height", cover_size+61)
       	.attr("x", (w_canvas+margin_left) +19)
-      	.attr("y", y_img- 30)
+      	.attr("y", y_img-30)
       
       var next = album_cover.append("g").attr("viewBox", "0 0 42 42")
       .attr("transform", "translate("+(margin_left+w_canvas+cover_size+10)+","+(y_img+cover_size+20)+")")
@@ -269,17 +273,39 @@
                     //,"background-image: linear-gradient(rgba(255,255,255,1) 					   "+y(value)+"px,rgba(255,255,255,0)); height:"+(y(value)+15)+"px")
         }
       
-			var btn_expand = svg.append("foreignObject")
-      	.attr("width", 150)
-      	.attr("height", 50)
+		var btn_expand = svg.append("foreignObject")
+      	.attr("width", 250)
+      	.attr("height", 100)
         .attr("style", "transition: 0.5s;")
-      	.attr("transform", "translate(600,500)")
+      	.attr("transform", "translate(360,520)")
       	.append("xhtml:button")
         .attr("class", "button is-dark is-medium")
-        .text("Comparer")
+        .text("Voir autres supports")
+
+        var btn_compare = album_cover.append("foreignObject")
+        .attr("x", (w_canvas+margin_left) + cover_size/2 - 45)
+        .attr("y", y_img + cover_size + 90)
+      	.attr("width", 250)
+      	.attr("height", 100)
+        .attr("style", "transition: 0.5s;")
+      	.append("xhtml:button")
+        .attr("class", "button is-dark is-medium")
+        .text("Comparer album")
+
+
+      btn_compare.on("click", function(){
+        if(expended===true)
+            closeExpend(btn_expand.node())
+
+        updateAlbum(json[a_id])
+      });
         
       btn_expand.on("click", function(){
         if(expended===false){
+          d3.select(this.parentNode)
+             .transition()
+             .duration(1000)
+      	    .attr("transform", "translate(275,520)")
           d3.select(this)
             .attr("class", "button is-medium")
             .text("Réduire")
@@ -310,9 +336,18 @@
              .attr("style", "opacity:1;")
              .attr("transform", "translate("+ (0*(w_canvas+40) + 50) +",0)");
       	} else {
-          d3.select(this)
+            closeExpend(this) 
+        }
+        updateAlbum(json[a_id])
+      });
+      function closeExpend(btn){
+          d3.select(btn.parentNode)
+             .transition()
+             .duration(1000)
+      	    .attr("transform", "translate(360,520)")
+          d3.select(btn)
             .attr("class", "button is-dark is-medium")
-            .text("Comparer")
+            .text("Voir autres supports")
           //spotify_smoke.changeColor("#111111")
           spotify_smoke.changeColor([0,246,105])
           expended=false
@@ -336,11 +371,8 @@
              .duration(1000)
              .ease(d3.easeQuadOut)
              .attr("transform", "translate(0,0)")
-          
-        }
-        updateAlbum(json[a_id])
-      });
-      
+       
+      }
       d3.select("body")
     	.on("keydown", function() {
         if(d3.event.keyCode === 37){
