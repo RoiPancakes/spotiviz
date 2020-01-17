@@ -510,19 +510,19 @@ const svg = d3.select(".body-hist").append("svg")
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x).tickSize(0))
 
-          axx.selectAll("line").attr("stroke","black")
-          axx.selectAll("path").attr("stroke","black")
+          axx.selectAll("line").attr("stroke","white")
+          axx.selectAll("path").attr("stroke","white")
           axx.selectAll("text")
             .attr("font-size", "large")
-            .attr("fill","black")
+            .attr("fill","white")
             .attr("transform", "translate(-75, 8)");
 
           let axy = svg.append("g")
            .call(d3.axisLeft(y));
-          axy.selectAll("line").attr("stroke","black")
-          axy.selectAll("path").attr("stroke","black")
+          axy.selectAll("line").attr("stroke","white")
+          axy.selectAll("path").attr("stroke","white")
            axy.selectAll("text")
-            .attr("fill","black")
+            .attr("fill","white")
             .attr("transform", "translate(-10,0)")
             .attr("font-size", "large");
 
