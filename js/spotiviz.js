@@ -223,7 +223,8 @@
 			var cd_smoke = new smokePulser(ctx, w_canvas, h_canvas)
       ctx = bar_demat.select("canvas").node().getContext('2d')
 			var demat_smoke = new smokePulser(ctx, w_canvas, h_canvas)
-      
+    
+	//Définit la fumée en fonction du support
     spotify_smoke.changeColor([0,246,105])
     spotify_smoke_cmp.changeColor([0,246,105])
       spotify_smoke.start()
@@ -236,7 +237,7 @@
        //setTimeout(function(){
       //}, 5000);
 			
-      	
+      //Fonction mettant à jour l'album
       function updateAlbum(album){
           text_titre.text(album[0])
           text_artiste.text(album[1].artiste)
@@ -291,7 +292,8 @@
           bar_cd.select(".mask").attr("style", "height:"+y(album[1].co2_cd)+"px")
                     //,"background-image: linear-gradient(rgba(255,255,255,1) 					   "+y(value)+"px,rgba(255,255,255,0)); height:"+(y(value)+15)+"px")
         }
-      
+		
+        //Code du bouton "Voir plus"
 		var btn_expand = svg.append("foreignObject")
       	.attr("width", 250)
       	.attr("height", 100)
@@ -300,7 +302,8 @@
       	.append("xhtml:button")
         .attr("class", "button is-dark is-medium")
         .text("Voir autres supports")
-
+		
+		//Code du bouton "Comparer"
         var btn_compare = album_cover.append("foreignObject")
         .attr("x", (w_canvas+margin_left) + cover_size/2 - 45)
         .attr("y", y_img + cover_size + 90)
@@ -311,6 +314,7 @@
         .attr("class", "button is-dark is-medium")
         .text("Comparer album")
 
+	  //Permet de comparer deux albums
       var compare = false
       btn_compare.on("click", function(){
         if(expended===true)
@@ -335,6 +339,8 @@
         updateAlbum(json[a_id])
 
       });
+	  
+	  //Fonction qui permet d'arrêter de comaprer deux albums
       function stopCompare(){
           compare = false
           btn_compare
@@ -351,7 +357,8 @@
               .attr("style", "opacity:1;")
               .attr("transform", "translate(0,0)");
       }
-
+	
+	  //Fonction du bouton "voir plus"
       btn_expand.on("click", function(){
         if(compare===true)
           stopCompare()
@@ -394,6 +401,8 @@
         }
         updateAlbum(json[a_id])
       });
+	  
+	  //Fermeture de l'extension permettant de comparer/voir plus de supports
       function closeExpend(btn){
           d3.select(btn.parentNode)
              .transition()
@@ -427,6 +436,7 @@
              .attr("transform", "translate(0,0)")
        
       }
+	  //Parcours des albums avec les flèches
       d3.select("body")
     	.on("keydown", function() {
         if(d3.event.keyCode === 37){
@@ -450,7 +460,21 @@
 {
   dataset = "./datasets/Qcharton_processed.json"
   load_data() 
-  setTimeout(load_histo, 2000)
+  
+  //L'histogramme est chargé dès lors qu'on a suffisemment scroll
+    var scrolling = 0
+	var loaded = false
+  window.addEventListener('scroll', function(e) {
+		scrolling = window.scrollY;
+		
+		if(scrolling > 1000 && !loaded){
+			load_histo()
+			console.log("loading")
+			loaded = true
+		}
+	 
+  });
+  
   
 const margin = {top: 20, right: 20, bottom: 90, left: 120},
   width = 1000 - margin.left - margin.right,
@@ -468,6 +492,7 @@ const margin = {top: 20, right: 20, bottom: 90, left: 120},
   const y = d3.scaleLinear()
       .range([height, 0])
   
+//Crée l'histogrammme dans le div correspondant
 const svg = d3.select(".body-hist").append("svg")
   .attr("id", "svg")
   .attr("width", width + margin.left + margin.right)
@@ -484,9 +509,12 @@ const svg = d3.select(".body-hist").append("svg")
   
   var final_data = [];
   
+  
+  //Fonction permettant de charger les données
   function load_data() {
     d3.json(dataset, function(data) {
       
+	  //Calcul de la quantité totale de CO2 produite
       co2 = [0, 0, 0]
       noms = ["Physique", "Dématérialisé", "Spotify"]
       for(var i = 0; i<data.length; i++){
@@ -500,33 +528,35 @@ const svg = d3.select(".body-hist").append("svg")
 
       x.domain(final_data.map(function(d, i) { return d.nom; }));
       y.domain([0, d3.max(final_data, function(d) { return d.valeur; })+150]);
+
       
-      /*svg.selectAll("rect").remove()
-      svg.selectAll("g").remove()*/
-      
-          svg.selectAll("text").remove()
-          deleted = false;
+	  svg.selectAll("text").remove()
+	  deleted = false;
+	
+	//Création de l'axe X
+	  let axx = svg.append("g")
+		.attr("transform", "translate(0," + height + ")")
+		.call(d3.axisBottom(x).tickSize(0))
+	
+	//Label des barres
+	  axx.selectAll("line").attr("stroke","white")
+	  axx.selectAll("path").attr("stroke","white")
+	  axx.selectAll("text")
+		.attr("font-size", "large")
+		.attr("fill","white")
+		.attr("transform", "translate(-75, 8)");
+		
+	//Création de l'axe Y
+	  let axy = svg.append("g")
+	   .call(d3.axisLeft(y));
+	  axy.selectAll("line").attr("stroke","white")
+	  axy.selectAll("path").attr("stroke","white")
+	   axy.selectAll("text")
+		.attr("fill","white")
+		.attr("transform", "translate(-10,0)")
+		.attr("font-size", "large");
 
-          let axx = svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x).tickSize(0))
-
-          axx.selectAll("line").attr("stroke","white")
-          axx.selectAll("path").attr("stroke","white")
-          axx.selectAll("text")
-            .attr("font-size", "large")
-            .attr("fill","white")
-            .attr("transform", "translate(-75, 8)");
-
-          let axy = svg.append("g")
-           .call(d3.axisLeft(y));
-          axy.selectAll("line").attr("stroke","white")
-          axy.selectAll("path").attr("stroke","white")
-           axy.selectAll("text")
-            .attr("fill","white")
-            .attr("transform", "translate(-10,0)")
-            .attr("font-size", "large");
-          // text label for the y axis
+	//Label de l'axe Y
     svg.append("text")
     .attr("transform", "rotate(-90), translate(0, -25)")
     .attr("y", 32 - margin.left)
@@ -540,7 +570,7 @@ const svg = d3.select(".body-hist").append("svg")
     });
   }
          
-    
+    //Fonction qui charge les barres des histogrammes
     function load_histo(){
       d3.json(dataset, function(data) {
           width_r = 100
@@ -553,6 +583,7 @@ const svg = d3.select(".body-hist").append("svg")
          var bar = graphes.enter()
         .append("g")
          
+		//Création des barres avec le mouseover
          bar.append("rect")
         .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
         .attr("y", function(d){y_r = y(0); return y(0);})
@@ -587,7 +618,9 @@ const svg = d3.select(".body-hist").append("svg")
         .duration(1500)
         .attr("height", function(d){return height-y(d.valeur);})
         .attr("y", function(d){return y(d.valeur);});
-          
+		
+		
+        //Affichage de la quantité de CO2 au dessu des barres  
         bar.append("text")
         .attr("x", function(d){x_r = x(d.nom); return x(d.nom)})
         .attr("y", function(d){y_r = y(0); return y(0);})
