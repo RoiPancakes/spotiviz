@@ -30,7 +30,6 @@
         }
       }
     
-    
   	
   d3.json("datasets/Qcharton_processed.json", function(json){
       json.sort((a, b) => (a[1].co2_spotify < b[1].co2_spotify) ? 1 : -1)
@@ -53,6 +52,7 @@
         .attr("height", height);
       
       var bar_spotify = svg.append("g")
+      var bar_spotify_cmp = svg.append("g")
       var bar_demat = svg.append("g")
       var bar_cd = svg.append("g")
       
@@ -111,6 +111,7 @@
       }
       
       createBar(bar_spotify, "Spotify")
+      createBar(bar_spotify_cmp, "Spotify")
       createBar(bar_demat, "Dématérialisé")
       createBar(bar_cd, "CD")
   	  bar_spotify.append("text")
@@ -122,9 +123,13 @@
       
       bar_spotify.select(".support")
         .attr("stroke", "#00f669")
+      bar_spotify_cmp.select(".support")
+        .attr("stroke", "#00f669")
       bar_demat.select(".support")
         .attr("stroke", "#ff8a0c")
       bar_spotify.select(".mask")
+        .classed("spotify", true)
+      bar_spotify_cmp.select(".mask")
         .classed("spotify", true)
       bar_demat.select(".mask")
         .classed("demat", true)
@@ -212,15 +217,20 @@
       var ctx = bar_spotify.select("canvas").node().getContext('2d')
 			var spotify_smoke = new smokePulser(ctx, w_canvas, h_canvas)
       updateAlbum(json[a_id])
+      ctx = bar_spotify_cmp.select("canvas").node().getContext('2d')
+			var spotify_smoke_cmp = new smokePulser(ctx, w_canvas, h_canvas)
       ctx = bar_cd.select("canvas").node().getContext('2d')
 			var cd_smoke = new smokePulser(ctx, w_canvas, h_canvas)
       ctx = bar_demat.select("canvas").node().getContext('2d')
 			var demat_smoke = new smokePulser(ctx, w_canvas, h_canvas)
       
     spotify_smoke.changeColor([0,246,105])
+    spotify_smoke_cmp.changeColor([0,246,105])
       spotify_smoke.start()
+      spotify_smoke_cmp.start()
       demat_smoke.start()
       cd_smoke.start()
+      bar_spotify_cmp.attr("style", "opacity:0;")
       bar_cd.attr("style", "opacity:0;")
       bar_demat.attr("style", "opacity:0;")
        //setTimeout(function(){
@@ -247,21 +257,23 @@
           if(expended===true) value = Math.max(album[1].co2_spotify, album[1].co2_cd, album[1].co2_demat)
           else value = album[1].co2_spotify
           //spotify_smoke.smoke = scaleSmoke(album[1].co2_spotify)
-          y.domain([10,0])
-          if(value>10)
-            y.domain([20,0])
-          if(value>20)
-            y.domain([50,0])
-          if(value>50)
-            y.domain([100,0])
-          if(value>100)
-            y.domain([180,0])
-          if(value>500)
-            y.domain([1000,0])
-          if(value>1000)
-            y.domain([5000,0])
-          if(value>5000)
-          	y.domain([10000,0])
+          if(compare===false){
+              y.domain([10,0])
+              if(value>10)
+                y.domain([20,0])
+              if(value>20)
+                y.domain([50,0])
+              if(value>50)
+                y.domain([100,0])
+              if(value>100)
+                y.domain([180,0])
+              if(value>500)
+                y.domain([1000,0])
+              if(value>1000)
+                y.domain([5000,0])
+              if(value>5000)
+                y.domain([10000,0])
+          }
           
           svg.selectAll(".y.left")
             .transition()
@@ -271,7 +283,10 @@
             .transition()
             .duration(500)
             .call(yAxisRight)
-          bar_spotify.select(".mask").attr("style", "height:"+y(album[1].co2_spotify)+"px")
+          if(compare)
+              bar_spotify_cmp.select(".mask").attr("style", "height:"+y(album[1].co2_spotify)+"px")
+          else
+              bar_spotify.select(".mask").attr("style", "height:"+y(album[1].co2_spotify)+"px")
           bar_demat.select(".mask").attr("style", "height:"+y(album[1].co2_demat)+"px")
           bar_cd.select(".mask").attr("style", "height:"+y(album[1].co2_cd)+"px")
                     //,"background-image: linear-gradient(rgba(255,255,255,1) 					   "+y(value)+"px,rgba(255,255,255,0)); height:"+(y(value)+15)+"px")
@@ -296,15 +311,50 @@
         .attr("class", "button is-dark is-medium")
         .text("Comparer album")
 
-
+      var compare = false
       btn_compare.on("click", function(){
         if(expended===true)
             closeExpend(btn_expand.node())
+        if(compare===true){
+            stopCompare()
+        } else {
 
+            updateAlbum(json[a_id])
+            compare = true
+           d3.select(this)
+            .attr("class", "button is-medium")
+            .text("Réduire")
+            compare = true
+            bar_spotify_cmp.attr("style", "opacity:1;")
+            bar_spotify.transition()
+             .duration(1000)
+             .ease(d3.easeQuadOut)
+             .attr("style", "opacity:1;")
+             .attr("transform", "translate("+ ((-1)*(w_canvas+40)) +",0)");
+        }
         updateAlbum(json[a_id])
+
       });
-        
+      function stopCompare(){
+          compare = false
+          btn_compare
+              .attr("class", "button is-medium is-black")
+              .text("Comparer album")
+          bar_spotify_cmp
+              .transition()
+              .duration(1000)
+              .ease(d3.easeQuadOut)
+              .attr("style", "opacity:0;")
+          bar_spotify.transition()
+              .duration(1000)
+              .ease(d3.easeQuadOut)
+              .attr("style", "opacity:1;")
+              .attr("transform", "translate(0,0)");
+      }
+
       btn_expand.on("click", function(){
+        if(compare===true)
+          stopCompare()
         if(expended===false){
           d3.select(this.parentNode)
              .transition()
