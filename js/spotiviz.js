@@ -496,7 +496,7 @@
                 .attr("transform", "translate(0,0)")
             compare = false
             btn_compare
-                .attr("class", "button is-medium is-black")
+                .attr("class", "button is-medium is-dark")
                 .text("Comparer album")
             bar_spotify_cmp
                 .transition()
